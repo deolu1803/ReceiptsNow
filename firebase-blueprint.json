@@ -1,0 +1,827 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile and workspace pointer",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "country": { "type": "string" },
+        "state": { "type": "string" },
+        "city": { "type": "string" },
+        "address": { "type": "string" },
+        "activeBusinessId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "fullName", "email", "createdAt", "updatedAt"]
+    },
+    "PlatformAdmin": {
+      "title": "PlatformAdmin",
+      "description": "1803 CONSULT Super Admin registry",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "fullName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "PlatformSetting": {
+      "title": "PlatformSetting",
+      "description": "Central platform configuration for billing rules, grace period, bank transfer target, and email relay",
+      "type": "object",
+      "properties": {
+        "settingKey": { "type": "string" },
+        "monthlyPriceNgn": { "type": "number" },
+        "annualPriceNgn": { "type": "number" },
+        "storageLimitMb": { "type": "integer" },
+        "gracePeriodDays": { "type": "integer" },
+        "prorationEnabled": { "type": "boolean" },
+        "defaultRolloverEnabled": { "type": "boolean" },
+        "bankAccountName": { "type": "string" },
+        "bankAccountNumber": { "type": "string" },
+        "bankName": { "type": "string" },
+        "notificationEmail": { "type": "string" },
+        "emailNotificationWebhookUrl": { "type": "string" },
+        "paystackMonthlyUrl": { "type": "string" },
+        "paystackAnnualUrl": { "type": "string" },
+        "paystackPublicKey": { "type": "string" },
+        "paystackVerifyEndpoint": { "type": "string" },
+        "flutterwavePublicKey": { "type": "string" },
+        "flutterwaveEnvironment": { "type": "string", "enum": ["TEST", "LIVE"] },
+        "flutterwaveCurrency": { "type": "string" },
+        "flutterwaveVerifyEndpoint": { "type": "string" },
+        "flutterwaveWebhookUrl": { "type": "string" },
+        "supportEmail": { "type": "string" },
+        "supportPhone": { "type": "string" },
+        "latestVersionCode": { "type": "integer" },
+        "latestVersionName": { "type": "string" },
+        "updateTitle": { "type": "string" },
+        "releaseNotes": { "type": "string" },
+        "updateDownloadUrl": { "type": "string" },
+        "forceUpdate": { "type": "boolean" },
+        "configRevision": { "type": "integer" },
+        "publishedAtMillis": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["settingKey", "updatedAt"]
+    },
+    "PlatformAnnouncement": {
+      "title": "PlatformAnnouncement",
+      "description": "Platform-wide announcements published by 1803 CONSULT",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["SCHEDULED", "PUBLISHED", "ARCHIVED"] },
+        "targetAudience": { "type": "string" },
+        "createdByUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "message", "status", "createdByUid", "createdAt", "updatedAt"]
+    },
+    "Business": {
+      "title": "Business",
+      "description": "Isolated multi-tenant Nigerian business workspace",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "ownerName": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "ownerPhone": { "type": "string" },
+        "registeredName": { "type": "string" },
+        "tradingName": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "structure": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "website": { "type": "string" },
+        "cacNumber": { "type": "string" },
+        "socialMedia": { "type": "string" },
+        "authorisedRepName": { "type": "string" },
+        "logoBase64": { "type": "string" },
+        "signatureBase64": { "type": "string" },
+        "stampText": { "type": "string" },
+        "primaryColorHex": { "type": "string" },
+        "secondaryColorHex": { "type": "string" },
+        "accentColorHex": { "type": "string" },
+        "backgroundColorHex": { "type": "string" },
+        "textColorHex": { "type": "string" },
+        "defaultCurrency": { "type": "string" },
+        "receiptPrefix": { "type": "string" },
+        "numberingFormat": { "type": "string" },
+        "defaultAcknowledgement": { "type": "string" },
+        "businessSlogan": { "type": "string" },
+        "defaultTemplate": { "type": "string", "enum": ["STANDARD", "PREMIUM_CORPORATE", "COMPACT"] },
+        "publicVerificationEnabled": { "type": "boolean" },
+        "maskAccountNumbers": { "type": "boolean" },
+        "showSignature": { "type": "boolean" },
+        "showQrCode": { "type": "boolean" },
+        "subscriptionStatus": { "type": "string", "enum": ["AWAITING_SUBSCRIPTION", "TRIALING", "PENDING_PAYMENT", "ACTIVE", "EXPIRING_SOON", "GRACE_PERIOD", "PAST_DUE", "EXPIRED", "CANCELLED", "SUSPENDED"] },
+        "subscriptionPlanCode": { "type": "string" },
+        "subscriptionPlanId": { "type": "string" },
+        "subscriptionExpiryMillis": { "type": "integer" },
+        "subscriptionActivatedMillis": { "type": "integer" },
+        "accountStatus": { "type": "string", "enum": ["ACTIVE", "SUSPENDED"] },
+        "storageUsedBytes": { "type": "integer" },
+        "storageLimitBytes": { "type": "integer" },
+        "receiptsCount": { "type": "integer" },
+        "uploadedDocsCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerUid", "memberUids", "registeredName", "tradingName", "defaultCurrency", "receiptPrefix", "subscriptionStatus", "accountStatus", "createdAt", "updatedAt"]
+    },
+    "ReceiptCounter": {
+      "title": "ReceiptCounter",
+      "description": "Per-business sequential year receipt numbering counter",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "year": { "type": "integer" },
+        "lastSequence": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerUid", "memberUids", "year", "lastSequence", "updatedAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Business customer CRM profile",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "fullName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "customerCode": { "type": "string" },
+        "totalVerifiedAmount": { "type": "number" },
+        "receiptCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "fullName", "createdAt", "updatedAt"]
+    },
+    "CatalogItem": {
+      "title": "CatalogItem",
+      "description": "Configurable business product or service catalogue item",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "unitPrice": { "type": "number" },
+        "category": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "name", "unitPrice", "active", "createdAt", "updatedAt"]
+    },
+    "BankTransactionRecord": {
+      "title": "BankTransactionRecord",
+      "description": "Uploaded bank receipt metadata, AI OCR extraction, and verification workflow state",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "uploadedByUid": { "type": "string" },
+        "uploadedByName": { "type": "string" },
+        "documentType": { "type": "string" },
+        "documentName": { "type": "string" },
+        "documentSizeBytes": { "type": "integer" },
+        "thumbnailBase64": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "transactionDate": { "type": "string" },
+        "transactionTime": { "type": "string" },
+        "transactionReference": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "bankReceiptNumber": { "type": "string" },
+        "paymentNarration": { "type": "string" },
+        "transferChannel": { "type": "string" },
+        "bankTransactionStatus": { "type": "string" },
+        "transferFee": { "type": "number" },
+        "senderName": { "type": "string" },
+        "senderAccountName": { "type": "string" },
+        "senderBank": { "type": "string" },
+        "senderAccountNumber": { "type": "string" },
+        "beneficiaryName": { "type": "string" },
+        "beneficiaryAccountName": { "type": "string" },
+        "beneficiaryBank": { "type": "string" },
+        "beneficiaryAccountNumber": { "type": "string" },
+        "ocrConfidenceScore": { "type": "number" },
+        "humanReviewed": { "type": "boolean" },
+        "verificationStatus": { "type": "string", "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED", "REVERSED", "CANCELLED"] },
+        "verificationComment": { "type": "string" },
+        "verifiedByUid": { "type": "string" },
+        "verifiedByName": { "type": "string" },
+        "receiptId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "uploadedByUid", "amount", "currency", "verificationStatus", "humanReviewed", "createdAt", "updatedAt"]
+    },
+    "ReceiptRecord": {
+      "title": "ReceiptRecord",
+      "description": "Issued official Nigerian business payment receipt with immutable financial snapshot",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "receiptNumber": { "type": "string" },
+        "verificationCode": { "type": "string" },
+        "transactionRecordId": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerAddress": { "type": "string" },
+        "paymentPurpose": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "notes": { "type": "string" },
+        "amountPaid": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "currency": { "type": "string" },
+        "amountInWords": { "type": "string" },
+        "templateType": { "type": "string", "enum": ["STANDARD", "PREMIUM_CORPORATE", "COMPACT"] },
+        "verificationStatus": { "type": "string", "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED", "REVERSED", "CANCELLED"] },
+        "issuedByUid": { "type": "string" },
+        "issuedByName": { "type": "string" },
+        "issuedByRole": { "type": "string" },
+        "amendedFromReceiptId": { "type": "string" },
+        "cancellationReason": { "type": "string" },
+        "businessNameSnapshot": { "type": "string" },
+        "businessPrimaryHexSnapshot": { "type": "string" },
+        "businessAccentHexSnapshot": { "type": "string" },
+        "senderBankSnapshot": { "type": "string" },
+        "senderAccountNameSnapshot": { "type": "string" },
+        "beneficiaryBankSnapshot": { "type": "string" },
+        "transactionRefSnapshot": { "type": "string" },
+        "sessionIdSnapshot": { "type": "string" },
+        "transactionDateSnapshot": { "type": "string" },
+        "transactionTimeSnapshot": { "type": "string" },
+        "transferChannelSnapshot": { "type": "string" },
+        "narrationSnapshot": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "receiptNumber", "verificationCode", "customerName", "paymentPurpose", "amountPaid", "currency", "verificationStatus", "issuedByUid", "createdAt", "updatedAt"]
+    },
+    "StaffMember": {
+      "title": "StaffMember",
+      "description": "Business staff member with assigned RBAC role",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "staffUid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["OWNER", "BUSINESS_MANAGER", "RECEIPT_OFFICER", "VERIFICATION_OFFICER", "ACCOUNTANT"] },
+        "active": { "type": "boolean" },
+        "inviteId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "staffUid", "email", "role", "active", "createdAt", "updatedAt"]
+    },
+    "StaffInvite": {
+      "title": "StaffInvite",
+      "description": "Pending staff invitation for a business workspace",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "invitedEmail": { "type": "string" },
+        "invitedName": { "type": "string" },
+        "role": { "type": "string", "enum": ["BUSINESS_MANAGER", "RECEIPT_OFFICER", "VERIFICATION_OFFICER", "ACCOUNTANT"] },
+        "status": { "type": "string", "enum": ["PENDING", "ACCEPTED", "REVOKED"] },
+        "acceptedByUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "businessName", "ownerUid", "invitedEmail", "role", "status", "createdAt", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Append-only immutable business audit trail",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "actorUid": { "type": "string" },
+        "actorName": { "type": "string" },
+        "actorRole": { "type": "string" },
+        "action": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "details": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "actorUid", "action", "createdAt"]
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "Business workspace notifications and subscription reminders",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "category": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "title", "body", "read", "createdAt"]
+    },
+    "SubscriptionPayment": {
+      "title": "SubscriptionPayment",
+      "description": "Platform subscription payment records paid via verified bank transfer or Flutterwave",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "ownerPhone": { "type": "string" },
+        "planId": { "type": "string" },
+        "planCode": { "type": "string" },
+        "planName": { "type": "string" },
+        "amountNgn": { "type": "number" },
+        "amountMinor": { "type": "integer" },
+        "prorationCreditMinor": { "type": "integer" },
+        "currency": { "type": "string" },
+        "txRef": { "type": "string" },
+        "idempotencyKey": { "type": "string" },
+        "flwTransactionId": { "type": "string" },
+        "paymentMethod": { "type": "string", "enum": ["PAYSTACK", "BANK_TRANSFER", "FLUTTERWAVE", "MANUAL_ADMIN"] },
+        "paystackReference": { "type": "string" },
+        "paystackTransactionId": { "type": "string" },
+        "paystackChannel": { "type": "string" },
+        "paystackBank": { "type": "string" },
+        "paystackCardSummary": { "type": "string" },
+        "paystackCustomerEmail": { "type": "string" },
+        "paystackGatewayResponse": { "type": "string" },
+        "paystackPaymentUrl": { "type": "string" },
+        "verificationSource": { "type": "string" },
+        "paidAtMillis": { "type": "integer" },
+        "bankAccountName": { "type": "string" },
+        "bankAccountNumber": { "type": "string" },
+        "bankName": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderBank": { "type": "string" },
+        "transferNote": { "type": "string" },
+        "receiptImageBase64": { "type": "string" },
+        "receiptFileName": { "type": "string" },
+        "receiptMimeType": { "type": "string" },
+        "paymentStatus": { "type": "string", "enum": ["PENDING", "VERIFIED", "REJECTED", "FAILED", "REFUNDED"] },
+        "verifiedByUid": { "type": "string" },
+        "verifiedByEmail": { "type": "string" },
+        "verifiedAtMillis": { "type": "integer" },
+        "cycleStartMillis": { "type": "integer" },
+        "cycleEndMillis": { "type": "integer" },
+        "invoiceId": { "type": "string" },
+        "rejectionReason": { "type": "string" },
+        "emailNotificationStatus": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "planCode", "amountNgn", "currency", "txRef", "paymentStatus", "createdAt", "updatedAt"]
+    },
+    "SubscriptionPlan": {
+      "title": "SubscriptionPlan",
+      "description": "Configurable subscription tier stored in minor monetary units (kobo)",
+      "type": "object",
+      "properties": {
+        "planId": { "type": "string" },
+        "planCode": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "priceMinor": { "type": "integer" },
+        "currency": { "type": "string" },
+        "billingFrequency": { "type": "string", "enum": ["MONTHLY", "QUARTERLY", "BIANNUAL", "ANNUAL", "CUSTOM"] },
+        "intervalDays": { "type": "integer" },
+        "trialDays": { "type": "integer" },
+        "visible": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "INACTIVE", "ARCHIVED"] },
+        "sortOrder": { "type": "integer" },
+        "paystackPaymentUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["planId", "planCode", "name", "priceMinor", "currency", "billingFrequency", "intervalDays", "visible", "status", "createdAt", "updatedAt"]
+    },
+    "PlanFeature": {
+      "title": "PlanFeature",
+      "description": "Display and marketing feature item linked to a subscription plan",
+      "type": "object",
+      "properties": {
+        "planId": { "type": "string" },
+        "featureKey": { "type": "string" },
+        "label": { "type": "string" },
+        "valueText": { "type": "string" },
+        "included": { "type": "boolean" },
+        "sortOrder": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["planId", "featureKey", "label", "included", "updatedAt"]
+    },
+    "PlanEntitlement": {
+      "title": "PlanEntitlement",
+      "description": "Server-side quota and feature flags per subscription plan",
+      "type": "object",
+      "properties": {
+        "planId": { "type": "string" },
+        "maxReceiptsPerCycle": { "type": "integer" },
+        "rolloverEnabled": { "type": "boolean" },
+        "overageReceiptPriceMinor": { "type": "integer" },
+        "storageLimitBytes": { "type": "integer" },
+        "storageOverLimitAction": { "type": "string", "enum": ["BLOCK_NEW_UPLOADS", "WARN_ONLY"] },
+        "overageStoragePricePerGbMinor": { "type": "integer" },
+        "maxStaffAccounts": { "type": "integer" },
+        "maxOcrPerCycle": { "type": "integer" },
+        "maxCustomers": { "type": "integer" },
+        "allowedTemplates": { "type": "array" },
+        "analyticsEnabled": { "type": "boolean" },
+        "reportsExportEnabled": { "type": "boolean" },
+        "qrVerificationEnabled": { "type": "boolean" },
+        "whatsappSharingEnabled": { "type": "boolean" },
+        "emailSharingEnabled": { "type": "boolean" },
+        "prioritySupport": { "type": "boolean" },
+        "warningThresholds": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["planId", "maxReceiptsPerCycle", "storageLimitBytes", "maxStaffAccounts", "maxOcrPerCycle", "updatedAt"]
+    },
+    "BusinessSubscription": {
+      "title": "BusinessSubscription",
+      "description": "Normalized subscription record with historical pricing and entitlement snapshot",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "planId": { "type": "string" },
+        "planCode": { "type": "string" },
+        "planNameSnapshot": { "type": "string" },
+        "agreedPriceMinor": { "type": "integer" },
+        "agreedCurrency": { "type": "string" },
+        "agreedBillingFrequency": { "type": "string" },
+        "agreedIntervalDays": { "type": "integer" },
+        "agreedEntitlementsSnapshot": { "type": "object" },
+        "status": { "type": "string", "enum": ["AWAITING_SUBSCRIPTION", "TRIALING", "PENDING_PAYMENT", "ACTIVE", "EXPIRING_SOON", "GRACE_PERIOD", "PAST_DUE", "EXPIRED", "CANCELLED", "SUSPENDED"] },
+        "cycleStartMillis": { "type": "integer" },
+        "cycleEndMillis": { "type": "integer" },
+        "gracePeriodEndMillis": { "type": "integer" },
+        "trialEndMillis": { "type": "integer" },
+        "autoRenew": { "type": "boolean" },
+        "cancelAtPeriodEnd": { "type": "boolean" },
+        "cancelledAtMillis": { "type": "integer" },
+        "pendingUpgradePlanId": { "type": "string" },
+        "creditBalanceMinor": { "type": "integer" },
+        "lastPaymentId": { "type": "string" },
+        "lastInvoiceId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "status", "createdAt", "updatedAt"]
+    },
+    "SubscriptionInvoice": {
+      "title": "SubscriptionInvoice",
+      "description": "Immutable financial invoice for subscription activations, renewals, and upgrades",
+      "type": "object",
+      "properties": {
+        "invoiceNumber": { "type": "string" },
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "subscriptionId": { "type": "string" },
+        "paymentId": { "type": "string" },
+        "planId": { "type": "string" },
+        "planCode": { "type": "string" },
+        "planNameSnapshot": { "type": "string" },
+        "billingFrequencySnapshot": { "type": "string" },
+        "subtotalMinor": { "type": "integer" },
+        "prorationCreditMinor": { "type": "integer" },
+        "taxMinor": { "type": "integer" },
+        "totalMinor": { "type": "integer" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["ISSUED", "PAID", "VOID", "FAILED"] },
+        "cycleStartMillis": { "type": "integer" },
+        "cycleEndMillis": { "type": "integer" },
+        "issuedAtMillis": { "type": "integer" },
+        "paidAtMillis": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invoiceNumber", "businessId", "ownerUid", "planId", "totalMinor", "currency", "status", "createdAt", "updatedAt"]
+    },
+    "UsageRecord": {
+      "title": "UsageRecord",
+      "description": "Idempotent append-only consumption event for receipts, OCR, storage, and staff",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "usageType": { "type": "string", "enum": ["RECEIPT_GENERATED", "OCR_EXTRACTION", "STORAGE_DELTA", "STAFF_INVITE", "CUSTOMER_CREATE"] },
+        "quantity": { "type": "integer" },
+        "bytesDelta": { "type": "integer" },
+        "idempotencyKey": { "type": "string" },
+        "resourceId": { "type": "string" },
+        "cycleKey": { "type": "string" },
+        "actorUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "usageType", "quantity", "idempotencyKey", "cycleKey", "createdAt"]
+    },
+    "UsageQuota": {
+      "title": "UsageQuota",
+      "description": "Per-business current billing-cycle usage counters and warning watermark state",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "cycleKey": { "type": "string" },
+        "cycleStartMillis": { "type": "integer" },
+        "cycleEndMillis": { "type": "integer" },
+        "receiptsAllocated": { "type": "integer" },
+        "receiptsUsed": { "type": "integer" },
+        "rolloverReceipts": { "type": "integer" },
+        "overageReceiptsUsed": { "type": "integer" },
+        "ocrAllocated": { "type": "integer" },
+        "ocrUsed": { "type": "integer" },
+        "warningsSentPct": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "cycleKey", "receiptsAllocated", "receiptsUsed", "ocrAllocated", "ocrUsed", "updatedAt"]
+    },
+    "StorageUsage": {
+      "title": "StorageUsage",
+      "description": "Detailed per-business cloud storage breakdown across receipts, bank slips, branding, and documents",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "allocatedBytes": { "type": "integer" },
+        "usedBytes": { "type": "integer" },
+        "bankReceiptsBytes": { "type": "integer" },
+        "generatedReceiptsBytes": { "type": "integer" },
+        "brandingBytes": { "type": "integer" },
+        "otherDocsBytes": { "type": "integer" },
+        "limitBehavior": { "type": "string", "enum": ["BLOCK_NEW_UPLOADS", "WARN_ONLY"] },
+        "warningThresholdsSent": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "memberUids", "allocatedBytes", "usedBytes", "updatedAt"]
+    },
+    "SubscriptionEvent": {
+      "title": "SubscriptionEvent",
+      "description": "Immutable Super Admin and billing system audit trail",
+      "type": "object",
+      "properties": {
+        "actorUid": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "actorRole": { "type": "string" },
+        "businessId": { "type": "string" },
+        "entityType": { "type": "string" },
+        "entityId": { "type": "string" },
+        "action": { "type": "string" },
+        "previousValue": { "type": "string" },
+        "newValue": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorUid", "entityType", "entityId", "action", "createdAt"]
+    },
+    "PlanChangeHistory": {
+      "title": "PlanChangeHistory",
+      "description": "Immutable ledger of subscription creations, renewals, upgrades, downgrades, cancellations, and suspensions",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "fromPlanId": { "type": "string" },
+        "fromPlanName": { "type": "string" },
+        "toPlanId": { "type": "string" },
+        "toPlanName": { "type": "string" },
+        "changeType": { "type": "string", "enum": ["NEW", "RENEWAL", "UPGRADE", "DOWNGRADE", "CANCELLATION", "REACTIVATION", "SUSPENSION", "RESTORATION", "EXPIRY", "CUSTOM_OVERRIDE"] },
+        "prorationCreditMinor": { "type": "integer" },
+        "chargedMinor": { "type": "integer" },
+        "currency": { "type": "string" },
+        "actorUid": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "changeType", "actorUid", "createdAt"]
+    },
+    "CustomBusinessEntitlement": {
+      "title": "CustomBusinessEntitlement",
+      "description": "Super Admin per-business custom quota and entitlement overrides",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "overrideReceiptsPerCycle": { "type": "integer" },
+        "overrideStorageLimitBytes": { "type": "integer" },
+        "overrideMaxStaff": { "type": "integer" },
+        "overrideMaxOcr": { "type": "integer" },
+        "overrideMaxCustomers": { "type": "integer" },
+        "overrideRolloverEnabled": { "type": "boolean" },
+        "overrideNotes": { "type": "string" },
+        "updatedByUid": { "type": "string" },
+        "updatedByEmail": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "updatedByUid", "updatedAt"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Customer support tickets between business owners and 1803 CONSULT Super Admin",
+      "type": "object",
+      "properties": {
+        "businessId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "ownerEmail": { "type": "string" },
+        "subject": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] },
+        "adminReply": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["businessId", "ownerUid", "subject", "description", "status", "createdAt", "updatedAt"]
+    },
+    "PublicVerification": {
+      "title": "PublicVerification",
+      "description": "Sanitized public receipt verification record without sensitive bank or customer PII",
+      "type": "object",
+      "properties": {
+        "verificationCode": { "type": "string" },
+        "businessId": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "businessName": { "type": "string" },
+        "receiptNumber": { "type": "string" },
+        "receiptDateText": { "type": "string" },
+        "customerDisplayName": { "type": "string" },
+        "amountFormatted": { "type": "string" },
+        "purposeSummary": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED", "REVERSED", "CANCELLED"] },
+        "publicVerificationEnabled": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["verificationCode", "businessId", "ownerUid", "memberUids", "businessName", "receiptNumber", "amountFormatted", "verificationStatus", "publicVerificationEnabled", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user account profile"
+    },
+    "/platform_admins/{adminUid}": {
+      "schema": { "$ref": "#/entities/PlatformAdmin" },
+      "description": "1803 CONSULT Super Admin accounts"
+    },
+    "/platform_settings/{settingId}": {
+      "schema": { "$ref": "#/entities/PlatformSetting" },
+      "description": "Platform subscription pricing, storage limits, and Flutterwave public config"
+    },
+    "/platform_announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/PlatformAnnouncement" },
+      "description": "Announcements published by 1803 CONSULT"
+    },
+    "/businesses/{businessId}": {
+      "schema": { "$ref": "#/entities/Business" },
+      "description": "Multi-tenant business profile, branding, and subscription status"
+    },
+    "/businesses/{businessId}/counters/{counterId}": {
+      "schema": { "$ref": "#/entities/ReceiptCounter" },
+      "description": "Sequential receipt numbering counter per year"
+    },
+    "/businesses/{businessId}/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Business customer directory"
+    },
+    "/businesses/{businessId}/products/{productId}": {
+      "schema": { "$ref": "#/entities/CatalogItem" },
+      "description": "Business products and services catalogue"
+    },
+    "/businesses/{businessId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/BankTransactionRecord" },
+      "description": "Uploaded bank receipts and OCR extraction records"
+    },
+    "/businesses/{businessId}/receipts/{receiptId}": {
+      "schema": { "$ref": "#/entities/ReceiptRecord" },
+      "description": "Issued official payment receipts"
+    },
+    "/businesses/{businessId}/staff/{staffUid}": {
+      "schema": { "$ref": "#/entities/StaffMember" },
+      "description": "Business staff RBAC records"
+    },
+    "/businesses/{businessId}/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable business audit trail"
+    },
+    "/businesses/{businessId}/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/AppNotification" },
+      "description": "Business notifications"
+    },
+    "/businesses/{businessId}/daily_ledgers/{ledgerId}": {
+      "schema": { "$ref": "#/entities/Business" },
+      "description": "Saved end-of-day receipt breakdown sheets with sales, purchases, expenditure, and net profit"
+    },
+    "/staff_invites/{inviteId}": {
+      "schema": { "$ref": "#/entities/StaffInvite" },
+      "description": "Staff invitation records"
+    },
+    "/subscription_plans/{planId}": {
+      "schema": { "$ref": "#/entities/SubscriptionPlan" },
+      "description": "Configurable subscription plans"
+    },
+    "/plan_features/{featureId}": {
+      "schema": { "$ref": "#/entities/PlanFeature" },
+      "description": "Feature rows attached to subscription plans"
+    },
+    "/plan_entitlements/{planId}": {
+      "schema": { "$ref": "#/entities/PlanEntitlement" },
+      "description": "Entitlement limits and feature gates per plan"
+    },
+    "/business_subscriptions/{businessId}": {
+      "schema": { "$ref": "#/entities/BusinessSubscription" },
+      "description": "Per-business subscription lifecycle state and pricing/entitlement snapshot"
+    },
+    "/subscription_payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/SubscriptionPayment" },
+      "description": "1803 CONSULT subscription payment ledger"
+    },
+    "/subscription_invoices/{invoiceId}": {
+      "schema": { "$ref": "#/entities/SubscriptionInvoice" },
+      "description": "Downloadable financial invoices for verified subscription payments"
+    },
+    "/usage_records/{recordId}": {
+      "schema": { "$ref": "#/entities/UsageRecord" },
+      "description": "Idempotent append-only usage events"
+    },
+    "/usage_quotas/{quotaId}": {
+      "schema": { "$ref": "#/entities/UsageQuota" },
+      "description": "Current cycle receipt and OCR quotas per business"
+    },
+    "/storage_usage/{businessId}": {
+      "schema": { "$ref": "#/entities/StorageUsage" },
+      "description": "Detailed per-business storage breakdown"
+    },
+    "/subscription_events/{eventId}": {
+      "schema": { "$ref": "#/entities/SubscriptionEvent" },
+      "description": "Immutable Super Admin billing audit log"
+    },
+    "/plan_change_history/{changeId}": {
+      "schema": { "$ref": "#/entities/PlanChangeHistory" },
+      "description": "Immutable subscription lifecycle and plan switch ledger"
+    },
+    "/custom_business_entitlements/{businessId}": {
+      "schema": { "$ref": "#/entities/CustomBusinessEntitlement" },
+      "description": "Custom per-business entitlement overrides configured by Super Admin"
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": { "$ref": "#/entities/SupportTicket" },
+      "description": "Support tickets between businesses and 1803 CONSULT"
+    },
+    "/public_verifications/{verificationCode}": {
+      "schema": { "$ref": "#/entities/PublicVerification" },
+      "description": "Public QR verification records without sensitive PII"
+    }
+  }
+}

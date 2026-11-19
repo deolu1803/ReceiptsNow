@@ -1,0 +1,1229 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.get('email_verified', false) == true &&
+          request.auth.token.get('email', '') == 'info.1803consult@gmail.com') ||
+        exists(/databases/$(database)/documents/platform_admins/$(request.auth.uid))
+      );
+    }
+
+    function isBusinessOwner(businessId) {
+      let biz = getAfter(/databases/$(database)/documents/businesses/$(businessId));
+      return isSignedIn() && biz != null && biz.data.ownerUid == request.auth.uid;
+    }
+
+    function isBusinessMemberDoc(data) {
+      return isSignedIn() && (
+        data.ownerUid == request.auth.uid ||
+        (data.memberUids is list && request.auth.uid in data.memberUids)
+      );
+    }
+
+    function isBusinessMember(businessId) {
+      let biz = getAfter(/databases/$(database)/documents/businesses/$(businessId));
+      return isSignedIn() && biz != null && (
+        biz.data.ownerUid == request.auth.uid ||
+        request.auth.uid in biz.data.memberUids
+      );
+    }
+
+    function isActiveBusinessManager(businessId) {
+      let staffDoc = get(/databases/$(database)/documents/businesses/$(businessId)/staff/$(request.auth.uid));
+      return isSignedIn() &&
+        request.auth.uid in existing().memberUids &&
+        staffDoc != null &&
+        staffDoc.data.role == 'BUSINESS_MANAGER' &&
+        staffDoc.data.active == true;
+    }
+
+    function isMatchingStaffInvite(inviteId, businessId, role) {
+      let inv = getAfter(/databases/$(database)/documents/staff_invites/$(inviteId));
+      return inv != null &&
+        inv.data.invitedEmail.lower() == request.auth.token.get('email', '').lower() &&
+        inv.data.businessId == businessId &&
+        inv.data.role == role &&
+        inv.data.status in ['PENDING', 'ACCEPTED'];
+    }
+
+    function unchangedOpt(field, fallback) {
+      return incoming().get(field, fallback) == existing().get(field, fallback);
+    }
+
+    function isOptionalString(data, key, maxLen) {
+      return !(key in data) || data[key] == null || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    function isOptionalNumber(data, key) {
+      return !(key in data) || data[key] == null || (data[key] is number);
+    }
+
+    function isOptionalInt(data, key) {
+      return !(key in data) || data[key] == null || (data[key] is int);
+    }
+
+    function isOptionalBool(data, key) {
+      return !(key in data) || data[key] == null || (data[key] is bool);
+    }
+
+    function isValidMemberList(data) {
+      return data.memberUids is list &&
+        data.memberUids.size() >= 1 &&
+        data.memberUids.size() <= 50 &&
+        data.ownerUid in data.memberUids;
+    }
+
+    // --- VALIDATION HELPERS ---
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 150 &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        isOptionalString(data, 'phone', 40) &&
+        isOptionalString(data, 'country', 80) &&
+        isOptionalString(data, 'state', 80) &&
+        isOptionalString(data, 'city', 80) &&
+        isOptionalString(data, 'address', 300) &&
+        isOptionalString(data, 'activeBusinessId', 128) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPlatformSetting(data) {
+      return data.settingKey is string && data.settingKey.size() >= 1 && data.settingKey.size() <= 64 &&
+        isOptionalNumber(data, 'monthlyPriceNgn') &&
+        isOptionalNumber(data, 'annualPriceNgn') &&
+        isOptionalInt(data, 'storageLimitMb') &&
+        isOptionalInt(data, 'gracePeriodDays') &&
+        isOptionalBool(data, 'prorationEnabled') &&
+        isOptionalBool(data, 'defaultRolloverEnabled') &&
+        isOptionalString(data, 'bankAccountName', 150) &&
+        isOptionalString(data, 'bankAccountNumber', 40) &&
+        isOptionalString(data, 'bankName', 80) &&
+        isOptionalString(data, 'notificationEmail', 150) &&
+        isOptionalString(data, 'emailNotificationWebhookUrl', 300) &&
+        isOptionalString(data, 'paystackMonthlyUrl', 500) &&
+        isOptionalString(data, 'paystackAnnualUrl', 500) &&
+        isOptionalString(data, 'paystackPublicKey', 200) &&
+        isOptionalString(data, 'paystackVerifyEndpoint', 500) &&
+        isOptionalString(data, 'flutterwavePublicKey', 200) &&
+        isOptionalString(data, 'flutterwaveEnvironment', 16) &&
+        isOptionalString(data, 'flutterwaveCurrency', 16) &&
+        isOptionalString(data, 'flutterwaveVerifyEndpoint', 300) &&
+        isOptionalString(data, 'flutterwaveWebhookUrl', 300) &&
+        isOptionalString(data, 'supportEmail', 150) &&
+        isOptionalString(data, 'supportPhone', 50) &&
+        isOptionalInt(data, 'latestVersionCode') &&
+        isOptionalString(data, 'latestVersionName', 32) &&
+        isOptionalString(data, 'updateTitle', 160) &&
+        isOptionalString(data, 'releaseNotes', 2000) &&
+        isOptionalString(data, 'updateDownloadUrl', 500) &&
+        isOptionalBool(data, 'forceUpdate') &&
+        isOptionalInt(data, 'configRevision') &&
+        isOptionalInt(data, 'publishedAtMillis') &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidAnnouncement(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+        data.message is string && data.message.size() >= 1 && data.message.size() <= 4000 &&
+        isOptionalString(data, 'category', 64) &&
+        data.status in ['SCHEDULED', 'PUBLISHED', 'ARCHIVED'] &&
+        isOptionalString(data, 'targetAudience', 64) &&
+        data.createdByUid is string && data.createdByUid.size() <= 128 &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidBusiness(data) {
+      return data.keys().hasOnly([
+          'ownerUid', 'memberUids', 'ownerName', 'ownerEmail', 'ownerPhone',
+          'registeredName', 'tradingName', 'category', 'description', 'structure',
+          'address', 'phone', 'email', 'website', 'cacNumber', 'socialMedia',
+          'authorisedRepName', 'logoBase64', 'signatureBase64', 'stampText',
+          'primaryColorHex', 'secondaryColorHex', 'accentColorHex',
+          'backgroundColorHex', 'textColorHex', 'defaultCurrency', 'receiptPrefix',
+          'numberingFormat', 'defaultAcknowledgement', 'businessSlogan',
+          'defaultTemplate', 'publicVerificationEnabled', 'maskAccountNumbers',
+          'showSignature', 'showQrCode', 'subscriptionStatus', 'subscriptionPlanCode',
+          'subscriptionPlanId', 'subscriptionExpiryMillis', 'subscriptionActivatedMillis',
+          'accountStatus', 'storageUsedBytes', 'storageLimitBytes', 'receiptsCount',
+          'uploadedDocsCount', 'createdAt', 'updatedAt'
+        ]) &&
+        data.ownerUid is string && data.ownerUid.size() >= 1 && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.registeredName is string && data.registeredName.size() >= 1 && data.registeredName.size() <= 200 &&
+        data.tradingName is string && data.tradingName.size() >= 1 && data.tradingName.size() <= 200 &&
+        data.defaultCurrency is string && data.defaultCurrency.size() >= 3 && data.defaultCurrency.size() <= 10 &&
+        data.receiptPrefix is string && data.receiptPrefix.size() >= 1 && data.receiptPrefix.size() <= 24 &&
+        (!('logoBase64' in data) || (data.logoBase64 is string && data.logoBase64.size() <= 450000)) &&
+        (!('signatureBase64' in data) || (data.signatureBase64 is string && data.signatureBase64.size() <= 250000)) &&
+        (!('defaultTemplate' in data) || data.defaultTemplate in ['STANDARD', 'PREMIUM_CORPORATE', 'COMPACT', 'MODERN_CLASSIC', 'ROYAL_CERTIFICATE', 'FINTECH_WAVE']) &&
+        data.subscriptionStatus in ['AWAITING_SUBSCRIPTION', 'TRIALING', 'PENDING_PAYMENT', 'ACTIVE', 'EXPIRING_SOON', 'GRACE_PERIOD', 'PAST_DUE', 'EXPIRED', 'CANCELLED', 'SUSPENDED'] &&
+        data.accountStatus in ['ACTIVE', 'SUSPENDED'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidReceiptCounter(data) {
+      return data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.year is int && data.year >= 2024 && data.year <= 2100 &&
+        data.lastSequence is int && data.lastSequence >= 0 && data.lastSequence <= 99999999 &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCustomer(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 160 &&
+        isOptionalString(data, 'phone', 40) &&
+        isOptionalString(data, 'email', 200) &&
+        isOptionalString(data, 'address', 300) &&
+        isOptionalString(data, 'customerCode', 64) &&
+        isOptionalNumber(data, 'totalVerifiedAmount') &&
+        isOptionalInt(data, 'receiptCount') &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCatalogItem(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 160 &&
+        isOptionalString(data, 'description', 600) &&
+        data.unitPrice is number && data.unitPrice >= 0 &&
+        isOptionalString(data, 'category', 80) &&
+        data.active is bool &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidBankTransaction(data, businessId) {
+      return data.keys().hasOnly([
+          'businessId', 'ownerUid', 'memberUids', 'uploadedByUid', 'uploadedByName',
+          'documentType', 'documentName', 'documentSizeBytes', 'thumbnailBase64',
+          'amount', 'currency', 'transactionDate', 'transactionTime',
+          'transactionReference', 'sessionId', 'transactionId', 'bankReceiptNumber',
+          'paymentNarration', 'transferChannel', 'bankTransactionStatus', 'transferFee',
+          'senderName', 'senderAccountName', 'senderBank', 'senderAccountNumber',
+          'beneficiaryName', 'beneficiaryAccountName', 'beneficiaryBank',
+          'beneficiaryAccountNumber', 'ocrConfidenceScore', 'humanReviewed',
+          'verificationStatus', 'verificationComment', 'verifiedByUid',
+          'verifiedByName', 'receiptId', 'createdAt', 'updatedAt'
+        ]) &&
+        data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.uploadedByUid is string && data.uploadedByUid.size() <= 128 &&
+        data.amount is number && data.amount >= 0 &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        (!('thumbnailBase64' in data) || (data.thumbnailBase64 is string && data.thumbnailBase64.size() <= 250000)) &&
+        data.humanReviewed is bool &&
+        data.verificationStatus in ['PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'REVERSED', 'CANCELLED'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidReceipt(data, businessId) {
+      return data.keys().hasOnly([
+          'businessId', 'ownerUid', 'memberUids', 'receiptNumber', 'verificationCode',
+          'transactionRecordId', 'customerId', 'customerName', 'customerPhone',
+          'customerEmail', 'customerAddress', 'paymentPurpose', 'invoiceNumber',
+          'orderNumber', 'notes', 'amountPaid', 'discountAmount', 'currency',
+          'amountInWords', 'templateType', 'verificationStatus', 'issuedByUid',
+          'issuedByName', 'issuedByRole', 'amendedFromReceiptId', 'cancellationReason',
+          'businessNameSnapshot', 'businessPrimaryHexSnapshot', 'businessAccentHexSnapshot',
+          'senderBankSnapshot', 'senderAccountNameSnapshot', 'beneficiaryBankSnapshot',
+          'transactionRefSnapshot', 'sessionIdSnapshot', 'transactionDateSnapshot',
+          'transactionTimeSnapshot', 'transferChannelSnapshot', 'narrationSnapshot',
+          'createdAt', 'updatedAt'
+        ]) &&
+        data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.receiptNumber is string && data.receiptNumber.size() >= 3 && data.receiptNumber.size() <= 80 &&
+        data.verificationCode is string && data.verificationCode.size() >= 4 && data.verificationCode.size() <= 128 &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 160 &&
+        data.paymentPurpose is string && data.paymentPurpose.size() >= 1 && data.paymentPurpose.size() <= 500 &&
+        data.amountPaid is number && data.amountPaid >= 0 &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        (!('templateType' in data) || data.templateType in ['STANDARD', 'PREMIUM_CORPORATE', 'COMPACT', 'MODERN_CLASSIC', 'ROYAL_CERTIFICATE', 'FINTECH_WAVE']) &&
+        data.verificationStatus in ['PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'REVERSED', 'CANCELLED'] &&
+        data.issuedByUid is string && data.issuedByUid.size() <= 128 &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidStaffMember(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.staffUid is string && data.staffUid.size() <= 128 &&
+        isOptionalString(data, 'fullName', 150) &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        data.role in ['OWNER', 'BUSINESS_MANAGER', 'RECEIPT_OFFICER', 'VERIFICATION_OFFICER', 'ACCOUNTANT'] &&
+        data.active is bool &&
+        isOptionalString(data, 'inviteId', 128) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidStaffInvite(data) {
+      return data.businessId is string && data.businessId.size() <= 128 &&
+        data.businessName is string && data.businessName.size() <= 200 &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        data.invitedEmail is string && data.invitedEmail.size() >= 3 && data.invitedEmail.size() <= 200 &&
+        isOptionalString(data, 'invitedName', 150) &&
+        data.role in ['BUSINESS_MANAGER', 'RECEIPT_OFFICER', 'VERIFICATION_OFFICER', 'ACCOUNTANT'] &&
+        data.status in ['PENDING', 'ACCEPTED', 'REVOKED'] &&
+        isOptionalString(data, 'acceptedByUid', 128) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidAuditLog(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.actorUid is string && data.actorUid.size() <= 128 &&
+        isOptionalString(data, 'actorName', 150) &&
+        isOptionalString(data, 'actorRole', 64) &&
+        data.action is string && data.action.size() >= 1 && data.action.size() <= 120 &&
+        isOptionalString(data, 'targetType', 64) &&
+        isOptionalString(data, 'targetId', 128) &&
+        isOptionalString(data, 'details', 1000) &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidNotification(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+        data.body is string && data.body.size() >= 1 && data.body.size() <= 1000 &&
+        isOptionalString(data, 'category', 64) &&
+        data.read is bool &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidDailyLedger(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 160 &&
+        isOptionalString(data, 'ledgerDate', 32) &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        data.totalSales is number &&
+        data.totalPurchases is number &&
+        data.totalExpenditure is number &&
+        data.totalRefunds is number &&
+        data.totalOther is number &&
+        data.grossProfit is number &&
+        data.netProfit is number &&
+        data.entryCount is int && data.entryCount >= 0 && data.entryCount <= 250 &&
+        data.entries is list && data.entries.size() <= 250 &&
+        data.createdByUid is string && data.createdByUid.size() <= 128 &&
+        isOptionalString(data, 'createdByName', 150) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSubscriptionPayment(data) {
+      return data.businessId is string && data.businessId.size() <= 128 &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        data.planCode is string && data.planCode.size() >= 1 && data.planCode.size() <= 64 &&
+        data.amountNgn is number && data.amountNgn >= 0 &&
+        (!('amountMinor' in data) || (data.amountMinor is int && data.amountMinor >= 0)) &&
+        (!('prorationCreditMinor' in data) || (data.prorationCreditMinor is int && data.prorationCreditMinor >= 0)) &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        data.txRef is string && data.txRef.size() >= 4 && data.txRef.size() <= 128 &&
+        (!('paymentMethod' in data) || data.paymentMethod in ['PAYSTACK', 'BANK_TRANSFER', 'FLUTTERWAVE', 'MANUAL_ADMIN']) &&
+        isOptionalString(data, 'paystackReference', 128) &&
+        isOptionalString(data, 'paystackTransactionId', 128) &&
+        isOptionalString(data, 'paystackChannel', 64) &&
+        isOptionalString(data, 'paystackBank', 128) &&
+        isOptionalString(data, 'paystackCardSummary', 128) &&
+        isOptionalString(data, 'paystackCustomerEmail', 200) &&
+        isOptionalString(data, 'paystackGatewayResponse', 200) &&
+        isOptionalString(data, 'paystackPaymentUrl', 500) &&
+        isOptionalString(data, 'verificationSource', 64) &&
+        isOptionalInt(data, 'paidAtMillis') &&
+        (!('receiptImageBase64' in data) || (data.receiptImageBase64 is string && data.receiptImageBase64.size() <= 700000)) &&
+        data.paymentStatus in ['PENDING', 'VERIFIED', 'REJECTED', 'FAILED', 'REFUNDED'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isVerifiedPaystackPaymentDoc(data, businessId) {
+      return data.ownerUid == request.auth.uid &&
+        data.businessId == businessId &&
+        data.paymentMethod == 'PAYSTACK' &&
+        data.paymentStatus == 'VERIFIED' &&
+        ('paystackReference' in data) && data.paystackReference is string && data.paystackReference.size() >= 6 &&
+        ('verificationSource' in data) && data.verificationSource in ['PAYSTACK_API_VERIFIED', 'CHECKOUT_CONFIRMED'] &&
+        ('verifiedByUid' in data) && data.verifiedByUid == request.auth.uid &&
+        ('verifiedAtMillis' in data) && data.verifiedAtMillis is int && data.verifiedAtMillis > 0 &&
+        ('cycleEndMillis' in data) && data.cycleEndMillis is int && data.cycleEndMillis > 0 &&
+        ('invoiceId' in data) && data.invoiceId is string && isValidId(data.invoiceId);
+    }
+
+    function isPaystackBatchPaymentAfter(paymentId, businessId) {
+      return isValidId(paymentId) &&
+        isVerifiedPaystackPaymentDoc(
+          getAfter(/databases/$(database)/documents/subscription_payments/$(paymentId)).data,
+          businessId
+        );
+    }
+
+    function isPaystackBatchSubscriptionAfter(businessId) {
+      return getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.ownerUid == request.auth.uid &&
+        getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.status == 'ACTIVE' &&
+        isPaystackBatchPaymentAfter(
+          getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.lastPaymentId,
+          businessId
+        );
+    }
+
+    function isValidSubscriptionPlan(data, planId) {
+      return data.planId == planId &&
+        data.planCode is string && data.planCode.size() >= 1 && data.planCode.size() <= 64 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 160 &&
+        data.priceMinor is int && data.priceMinor >= 0 &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        data.billingFrequency in ['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM'] &&
+        data.intervalDays is int && data.intervalDays >= 1 && data.intervalDays <= 3660 &&
+        data.visible is bool &&
+        data.status in ['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED'] &&
+        isOptionalString(data, 'paystackPaymentUrl', 500) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPlanFeature(data) {
+      return isValidId(data.planId) &&
+        data.featureKey is string && data.featureKey.size() >= 1 && data.featureKey.size() <= 64 &&
+        data.label is string && data.label.size() >= 1 && data.label.size() <= 200 &&
+        data.included is bool &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPlanEntitlement(data, planId) {
+      return data.planId == planId &&
+        data.maxReceiptsPerCycle is int && data.maxReceiptsPerCycle >= -1 &&
+        data.storageLimitBytes is int && data.storageLimitBytes >= -1 &&
+        (!('storageOverLimitAction' in data) || data.storageOverLimitAction in ['BLOCK_NEW_UPLOADS', 'WARN_ONLY']) &&
+        data.maxStaffAccounts is int && data.maxStaffAccounts >= -1 &&
+        data.maxOcrPerCycle is int && data.maxOcrPerCycle >= -1 &&
+        (!('allowedTemplates' in data) || data.allowedTemplates is list) &&
+        (!('warningThresholds' in data) || data.warningThresholds is list) &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidBusinessSubscription(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        (!('agreedPriceMinor' in data) || (data.agreedPriceMinor is int && data.agreedPriceMinor >= 0)) &&
+        (!('agreedEntitlementsSnapshot' in data) || data.agreedEntitlementsSnapshot is map) &&
+        data.status in ['AWAITING_SUBSCRIPTION', 'TRIALING', 'PENDING_PAYMENT', 'ACTIVE', 'EXPIRING_SOON', 'GRACE_PERIOD', 'PAST_DUE', 'EXPIRED', 'CANCELLED', 'SUSPENDED'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSubscriptionInvoice(data) {
+      return data.invoiceNumber is string && data.invoiceNumber.size() >= 3 && data.invoiceNumber.size() <= 80 &&
+        isValidId(data.businessId) &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        data.planId is string && data.planId.size() <= 128 &&
+        data.totalMinor is int && data.totalMinor >= 0 &&
+        data.currency is string && data.currency.size() >= 3 && data.currency.size() <= 10 &&
+        data.status in ['ISSUED', 'PAID', 'VOID', 'FAILED'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidUsageRecord(data) {
+      return isValidId(data.businessId) &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.usageType in ['RECEIPT_GENERATED', 'OCR_EXTRACTION', 'STORAGE_DELTA', 'STAFF_INVITE', 'CUSTOMER_CREATE'] &&
+        data.quantity is int && data.quantity >= 0 && data.quantity <= 1000 &&
+        data.idempotencyKey is string && data.idempotencyKey.size() >= 4 && data.idempotencyKey.size() <= 128 &&
+        data.cycleKey is string && data.cycleKey.size() >= 4 && data.cycleKey.size() <= 64 &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidUsageQuota(data) {
+      return isValidId(data.businessId) &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.cycleKey is string && data.cycleKey.size() >= 4 && data.cycleKey.size() <= 64 &&
+        data.receiptsAllocated is int && data.receiptsAllocated >= -1 &&
+        data.receiptsUsed is int && data.receiptsUsed >= 0 &&
+        data.ocrAllocated is int && data.ocrAllocated >= -1 &&
+        data.ocrUsed is int && data.ocrUsed >= 0 &&
+        (!('warningsSentPct' in data) || data.warningsSentPct is list) &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidStorageUsage(data, businessId) {
+      return data.businessId == businessId &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.allocatedBytes is int && data.allocatedBytes >= -1 &&
+        data.usedBytes is int && data.usedBytes >= 0 &&
+        (!('limitBehavior' in data) || data.limitBehavior in ['BLOCK_NEW_UPLOADS', 'WARN_ONLY']) &&
+        (!('warningThresholdsSent' in data) || data.warningThresholdsSent is list) &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSubscriptionEvent(data) {
+      return data.actorUid is string && data.actorUid.size() <= 128 &&
+        data.entityType is string && data.entityType.size() >= 1 && data.entityType.size() <= 64 &&
+        data.entityId is string && data.entityId.size() >= 1 && data.entityId.size() <= 128 &&
+        data.action is string && data.action.size() >= 1 && data.action.size() <= 100 &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidPlanChangeHistory(data) {
+      return isValidId(data.businessId) &&
+        data.changeType in ['NEW', 'RENEWAL', 'UPGRADE', 'DOWNGRADE', 'CANCELLATION', 'REACTIVATION', 'SUSPENSION', 'RESTORATION', 'EXPIRY', 'CUSTOM_OVERRIDE'] &&
+        data.actorUid is string && data.actorUid.size() <= 128 &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidCustomBusinessEntitlement(data, businessId) {
+      return data.businessId == businessId &&
+        data.updatedByUid is string && data.updatedByUid.size() <= 128 &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMailNotification(data) {
+      return data.paymentId is string && data.paymentId.size() <= 128 &&
+        data.businessId is string && data.businessId.size() <= 128 &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        data.toEmail is string && data.toEmail.size() >= 3 && data.toEmail.size() <= 200 &&
+        data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 250 &&
+        data.body is string && data.body.size() >= 1 && data.body.size() <= 8000 &&
+        data.deliveryStatus in ['QUEUED', 'SENT', 'FAILED', 'PENDING_SMTP_CONFIG'] &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSupportTicket(data) {
+      return data.businessId is string && data.businessId.size() <= 128 &&
+        isOptionalString(data, 'businessName', 200) &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isOptionalString(data, 'ownerName', 160) &&
+        isOptionalString(data, 'ownerEmail', 200) &&
+        data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 200 &&
+        isOptionalString(data, 'category', 64) &&
+        isOptionalString(data, 'source', 32) &&
+        data.description is string && data.description.size() >= 1 && data.description.size() <= 4000 &&
+        data.status in ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] &&
+        isOptionalString(data, 'adminReply', 4000) &&
+        isOptionalString(data, 'emailNotificationStatus', 32) &&
+        isOptionalString(data, 'emailNotificationError', 300) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPublicVerification(data, verificationCode) {
+      return data.verificationCode == verificationCode &&
+        data.businessId is string && data.businessId.size() <= 128 &&
+        data.ownerUid is string && data.ownerUid.size() <= 128 &&
+        isValidMemberList(data) &&
+        data.businessName is string && data.businessName.size() >= 1 && data.businessName.size() <= 200 &&
+        data.receiptNumber is string && data.receiptNumber.size() >= 3 && data.receiptNumber.size() <= 80 &&
+        isOptionalString(data, 'receiptDateText', 64) &&
+        isOptionalString(data, 'customerDisplayName', 160) &&
+        data.amountFormatted is string && data.amountFormatted.size() >= 1 && data.amountFormatted.size() <= 64 &&
+        isOptionalString(data, 'purposeSummary', 300) &&
+        data.verificationStatus in ['PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'REVERSED', 'CANCELLED'] &&
+        data.publicVerificationEnabled is bool &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // --- COLLECTION RULES ---
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSignedIn() && isValidId(userId) &&
+        request.auth.uid == userId &&
+        incoming().userId == request.auth.uid &&
+        isValidUserProfile(incoming());
+      allow update: if isSignedIn() && isValidId(userId) &&
+        isValidUserProfile(incoming()) &&
+        (request.auth.uid == userId || isSuperAdmin()) &&
+        incoming().userId == existing().userId &&
+        incoming().createdAt == existing().createdAt;
+      allow delete: if isSuperAdmin();
+    }
+
+    match /platform_admins/{adminUid} {
+      allow get: if isSignedIn() && isValidId(adminUid) && (request.auth.uid == adminUid || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    match /platform_settings/{settingId} {
+      allow get: if isSignedIn() && isValidId(settingId);
+      allow list: if isSignedIn();
+      allow create, update: if isSuperAdmin() && isValidId(settingId) && isValidPlatformSetting(incoming());
+      allow delete: if false;
+    }
+
+    match /platform_announcements/{announcementId} {
+      allow get: if isSignedIn() && isValidId(announcementId);
+      allow list: if isSignedIn();
+      allow create: if isSuperAdmin() && isValidId(announcementId) && isValidAnnouncement(incoming());
+      allow update: if isSuperAdmin() && isValidId(announcementId) && isValidAnnouncement(incoming()) &&
+        incoming().createdAt == existing().createdAt;
+      allow delete: if isSuperAdmin() && isValidId(announcementId);
+    }
+
+    match /businesses/{businessId} {
+      allow get: if isSignedIn() && isValidId(businessId) && (
+        isSuperAdmin() ||
+        (resource != null && isBusinessMemberDoc(existing()))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(businessId) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().accountStatus == 'ACTIVE' &&
+        isValidBusiness(incoming()) && (
+          incoming().subscriptionStatus in ['AWAITING_SUBSCRIPTION', 'PENDING_PAYMENT'] || (
+            incoming().subscriptionStatus == 'TRIALING' &&
+            incoming().subscriptionPlanId == 'plan_trial_90d' &&
+            incoming().subscriptionPlanCode == 'FREE_TRIAL' &&
+            incoming().subscriptionActivatedMillis is int &&
+            incoming().subscriptionExpiryMillis is int &&
+            incoming().subscriptionActivatedMillis > 0 &&
+            incoming().subscriptionActivatedMillis <= request.time.toMillis() + 300000 &&
+            incoming().subscriptionExpiryMillis > incoming().subscriptionActivatedMillis &&
+            (incoming().subscriptionExpiryMillis - incoming().subscriptionActivatedMillis) <= 7862400000 &&
+            incoming().subscriptionExpiryMillis <= request.time.toMillis() + 7862400000
+          )
+        );
+      allow update: if isSignedIn() && isValidId(businessId) &&
+        isValidBusiness(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt && (
+          isSuperAdmin() ||
+          (existing().ownerUid == request.auth.uid &&
+            incoming().accountStatus == existing().accountStatus &&
+            unchangedOpt('subscriptionPlanId', '') &&
+            unchangedOpt('subscriptionPlanCode', '') &&
+            unchangedOpt('subscriptionExpiryMillis', 0) &&
+            unchangedOpt('subscriptionActivatedMillis', 0) &&
+            unchangedOpt('storageLimitBytes', 524288000) &&
+            (incoming().subscriptionStatus == existing().subscriptionStatus ||
+              incoming().subscriptionStatus == 'PENDING_PAYMENT' ||
+              (incoming().subscriptionStatus == 'CANCELLED' &&
+                existing().subscriptionStatus in ['ACTIVE', 'EXPIRING_SOON', 'TRIALING', 'GRACE_PERIOD']))) ||
+          (existing().ownerUid == request.auth.uid &&
+            existing().subscriptionStatus == 'AWAITING_SUBSCRIPTION' &&
+            existing().get('subscriptionActivatedMillis', 0) == 0 &&
+            incoming().accountStatus == existing().accountStatus &&
+            incoming().subscriptionStatus == 'TRIALING' &&
+            incoming().subscriptionPlanId == 'plan_trial_90d' &&
+            incoming().subscriptionPlanCode == 'FREE_TRIAL' &&
+            incoming().subscriptionActivatedMillis is int &&
+            incoming().subscriptionExpiryMillis is int &&
+            incoming().subscriptionActivatedMillis > 0 &&
+            incoming().subscriptionActivatedMillis <= request.time.toMillis() + 300000 &&
+            incoming().subscriptionExpiryMillis > incoming().subscriptionActivatedMillis &&
+            (incoming().subscriptionExpiryMillis - incoming().subscriptionActivatedMillis) <= 7862400000 &&
+            incoming().subscriptionExpiryMillis <= request.time.toMillis() + 7862400000 &&
+            unchangedOpt('storageLimitBytes', 524288000) &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.ownerUid == request.auth.uid &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.status == 'TRIALING' &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.planId == 'plan_trial_90d') ||
+          (existing().ownerUid == request.auth.uid &&
+            incoming().accountStatus == existing().accountStatus &&
+            incoming().subscriptionStatus == 'ACTIVE' &&
+            incoming().subscriptionExpiryMillis is int &&
+            incoming().subscriptionExpiryMillis > 0 &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.ownerUid == request.auth.uid &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.status == 'ACTIVE' &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.planId == incoming().subscriptionPlanId &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.planCode == incoming().subscriptionPlanCode &&
+            getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.cycleEndMillis == incoming().subscriptionExpiryMillis &&
+            isPaystackBatchPaymentAfter(
+              getAfter(/databases/$(database)/documents/business_subscriptions/$(businessId)).data.lastPaymentId,
+              businessId
+            )) ||
+          (isActiveBusinessManager(businessId) &&
+            incoming().memberUids == existing().memberUids &&
+            incoming().accountStatus == existing().accountStatus &&
+            incoming().subscriptionStatus == existing().subscriptionStatus &&
+            unchangedOpt('subscriptionPlanId', '') &&
+            unchangedOpt('subscriptionPlanCode', '') &&
+            unchangedOpt('subscriptionExpiryMillis', 0) &&
+            unchangedOpt('subscriptionActivatedMillis', 0) &&
+            unchangedOpt('storageLimitBytes', 524288000)) ||
+          (request.auth.uid in existing().memberUids &&
+            incoming().accountStatus == existing().accountStatus &&
+            incoming().subscriptionStatus == existing().subscriptionStatus &&
+            unchangedOpt('subscriptionPlanId', '') &&
+            unchangedOpt('subscriptionPlanCode', '') &&
+            unchangedOpt('subscriptionExpiryMillis', 0) &&
+            unchangedOpt('subscriptionActivatedMillis', 0) &&
+            unchangedOpt('storageLimitBytes', 524288000) &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['receiptsCount', 'uploadedDocsCount', 'storageUsedBytes', 'updatedAt'])) ||
+          (!(request.auth.uid in existing().memberUids) &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['memberUids', 'updatedAt']) &&
+            incoming().memberUids.hasAll(existing().memberUids) &&
+            incoming().memberUids.size() == existing().memberUids.size() + 1 &&
+            request.auth.uid in incoming().memberUids &&
+            existsAfter(/databases/$(database)/documents/businesses/$(businessId)/staff/$(request.auth.uid)))
+        );
+      allow delete: if isSuperAdmin() && isValidId(businessId);
+
+      match /counters/{counterId} {
+        allow get: if isSignedIn() && isValidId(counterId) && (
+          isBusinessMember(businessId) ||
+          (resource != null && isBusinessMemberDoc(existing()))
+        );
+        allow list: if isSignedIn() && (isBusinessMember(businessId) || request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(counterId) &&
+          isValidReceiptCounter(incoming()) &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(counterId) &&
+          isValidReceiptCounter(incoming()) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().year == existing().year &&
+          incoming().lastSequence >= existing().lastSequence &&
+          isBusinessMember(businessId);
+        allow delete: if false;
+      }
+
+      match /customers/{customerId} {
+        allow get: if isSignedIn() && isValidId(customerId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(customerId) &&
+          isValidCustomer(incoming(), businessId) &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(customerId) &&
+          isValidCustomer(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().createdAt == existing().createdAt &&
+          isBusinessMember(businessId);
+        allow delete: if isSignedIn() && isValidId(customerId) && isBusinessOwner(businessId);
+      }
+
+      match /products/{productId} {
+        allow get: if isSignedIn() && isValidId(productId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(productId) &&
+          isValidCatalogItem(incoming(), businessId) &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(productId) &&
+          isValidCatalogItem(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().createdAt == existing().createdAt &&
+          isBusinessMember(businessId);
+        allow delete: if isSignedIn() && isValidId(productId) && isBusinessOwner(businessId);
+      }
+
+      match /transactions/{transactionId} {
+        allow get: if isSignedIn() && isValidId(transactionId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(transactionId) &&
+          isValidBankTransaction(incoming(), businessId) &&
+          incoming().uploadedByUid == request.auth.uid &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(transactionId) &&
+          isValidBankTransaction(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().uploadedByUid == existing().uploadedByUid &&
+          incoming().createdAt == existing().createdAt &&
+          isBusinessMember(businessId);
+        allow delete: if false;
+      }
+
+      match /receipts/{receiptId} {
+        allow get: if isSignedIn() && isValidId(receiptId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(receiptId) &&
+          isValidReceipt(incoming(), businessId) &&
+          incoming().issuedByUid == request.auth.uid &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(receiptId) &&
+          isValidReceipt(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().receiptNumber == existing().receiptNumber &&
+          incoming().verificationCode == existing().verificationCode &&
+          incoming().issuedByUid == existing().issuedByUid &&
+          incoming().amountPaid == existing().amountPaid &&
+          incoming().createdAt == existing().createdAt &&
+          isBusinessMember(businessId) && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['verificationStatus', 'cancellationReason', 'updatedAt']) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['memberUids', 'updatedAt']) &&
+              incoming().memberUids.hasAll(existing().memberUids))
+          );
+        allow delete: if false;
+      }
+
+      match /staff/{staffUid} {
+        allow get: if isSignedIn() && isValidId(staffUid) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(staffUid) &&
+          isValidStaffMember(incoming(), businessId) &&
+          (isBusinessOwner(businessId) || (
+            request.auth.uid == staffUid &&
+            request.auth.token.email_verified == true &&
+            incoming().role != 'OWNER' &&
+            ('inviteId' in incoming()) &&
+            incoming().inviteId is string &&
+            isValidId(incoming().inviteId) &&
+            isMatchingStaffInvite(incoming().inviteId, businessId, incoming().role)
+          ));
+        allow update: if isSignedIn() && isValidId(staffUid) &&
+          isValidStaffMember(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().staffUid == existing().staffUid &&
+          incoming().createdAt == existing().createdAt && (
+            isBusinessOwner(businessId) ||
+            (isBusinessMember(businessId) &&
+              incoming().diff(existing()).affectedKeys().hasOnly(['memberUids', 'updatedAt']) &&
+              incoming().memberUids.hasAll(existing().memberUids))
+          );
+        allow delete: if isSignedIn() && isValidId(staffUid) && isBusinessOwner(businessId);
+      }
+
+      match /audit_logs/{logId} {
+        allow get: if isSignedIn() && isValidId(logId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(logId) &&
+          isValidAuditLog(incoming(), businessId) &&
+          incoming().actorUid == request.auth.uid &&
+          isBusinessMember(businessId);
+        allow update, delete: if false;
+      }
+
+      match /notifications/{notificationId} {
+        allow get: if isSignedIn() && isValidId(notificationId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(notificationId) &&
+          isValidNotification(incoming(), businessId) &&
+          (isBusinessMember(businessId) || isSuperAdmin());
+        allow update: if isSignedIn() && isValidId(notificationId) &&
+          isValidNotification(incoming(), businessId) &&
+          isBusinessMember(businessId) && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['read']) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['memberUids']) &&
+              incoming().memberUids.hasAll(existing().memberUids))
+          );
+        allow delete: if false;
+      }
+
+      match /daily_ledgers/{ledgerId} {
+        allow get: if isSignedIn() && isValidId(ledgerId) && (isBusinessMember(businessId) || isBusinessMemberDoc(existing()) || isSuperAdmin());
+        allow list: if isSuperAdmin() || isBusinessMember(businessId) || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+        allow create: if isSignedIn() && isValidId(ledgerId) &&
+          isValidDailyLedger(incoming(), businessId) &&
+          incoming().createdByUid == request.auth.uid &&
+          isBusinessMember(businessId);
+        allow update: if isSignedIn() && isValidId(ledgerId) &&
+          isValidDailyLedger(incoming(), businessId) &&
+          incoming().ownerUid == existing().ownerUid &&
+          incoming().businessId == existing().businessId &&
+          incoming().createdAt == existing().createdAt &&
+          isBusinessMember(businessId);
+        allow delete: if isSignedIn() && isValidId(ledgerId) && isBusinessMember(businessId);
+      }
+    }
+
+    match /staff_invites/{inviteId} {
+      allow get: if isSignedIn() && isValidId(inviteId) && (
+        isSuperAdmin() ||
+        (resource != null && (
+          existing().ownerUid == request.auth.uid ||
+          existing().invitedEmail.lower() == request.auth.token.get('email', '').lower()
+        ))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && (
+        resource.data.ownerUid == request.auth.uid ||
+        resource.data.invitedEmail == request.auth.token.get('email', '').lower()
+      ));
+      allow create: if isSignedIn() && isValidId(inviteId) &&
+        isValidStaffInvite(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().status == 'PENDING' &&
+        isBusinessOwner(incoming().businessId);
+      allow update: if isSignedIn() && isValidId(inviteId) &&
+        isValidStaffInvite(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().businessId == existing().businessId &&
+        incoming().createdAt == existing().createdAt && (
+          existing().ownerUid == request.auth.uid ||
+          (existing().invitedEmail.lower() == request.auth.token.get('email', '').lower() &&
+            request.auth.token.get('email_verified', false) == true &&
+            existing().status == 'PENDING' &&
+            incoming().status == 'ACCEPTED' &&
+            incoming().acceptedByUid == request.auth.uid)
+        );
+      allow delete: if isSignedIn() && isValidId(inviteId) && existing().ownerUid == request.auth.uid;
+    }
+
+    match /subscription_plans/{planId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSuperAdmin() && isValidId(planId) && isValidSubscriptionPlan(incoming(), planId);
+      allow delete: if isSuperAdmin() && isValidId(planId);
+    }
+
+    match /plan_features/{featureId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSuperAdmin() && isValidId(featureId) && isValidPlanFeature(incoming());
+      allow delete: if isSuperAdmin() && isValidId(featureId);
+    }
+
+    match /plan_entitlements/{planId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isSuperAdmin() && isValidId(planId) && isValidPlanEntitlement(incoming(), planId);
+      allow delete: if isSuperAdmin() && isValidId(planId);
+    }
+
+    match /business_subscriptions/{businessId} {
+      allow get: if isSignedIn() && isValidId(businessId) && (
+        isSuperAdmin() ||
+        isBusinessMember(businessId) ||
+        (resource != null && isBusinessMemberDoc(existing()))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(businessId) &&
+        isValidBusinessSubscription(incoming(), businessId) && (
+          isSuperAdmin() || (
+            isBusinessOwner(businessId) &&
+            incoming().status in ['AWAITING_SUBSCRIPTION', 'PENDING_PAYMENT'] &&
+            incoming().creditBalanceMinor == 0
+          ) || (
+            isBusinessOwner(businessId) &&
+            incoming().ownerUid == request.auth.uid &&
+            incoming().status == 'TRIALING' &&
+            incoming().planId == 'plan_trial_90d' &&
+            incoming().planCode == 'FREE_TRIAL' &&
+            incoming().agreedPriceMinor == 0 &&
+            incoming().agreedIntervalDays == 90 &&
+            incoming().creditBalanceMinor == 0 &&
+            incoming().cycleStartMillis is int &&
+            incoming().cycleEndMillis is int &&
+            incoming().trialEndMillis == incoming().cycleEndMillis &&
+            incoming().cycleEndMillis > incoming().cycleStartMillis &&
+            (incoming().cycleEndMillis - incoming().cycleStartMillis) <= 7862400000 &&
+            incoming().cycleEndMillis <= request.time.toMillis() + 7862400000
+          ) || (
+            incoming().ownerUid == request.auth.uid &&
+            incoming().status == 'ACTIVE' &&
+            incoming().creditBalanceMinor == 0 &&
+            isPaystackBatchPaymentAfter(incoming().lastPaymentId, businessId)
+          )
+        );
+      allow update: if isSignedIn() && isValidId(businessId) &&
+        isValidBusinessSubscription(incoming(), businessId) &&
+        incoming().businessId == existing().businessId &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt && (
+          isSuperAdmin() || (
+            isBusinessOwner(businessId) &&
+            incoming().planId == existing().planId &&
+            incoming().planCode == existing().planCode &&
+            incoming().agreedPriceMinor == existing().agreedPriceMinor &&
+            incoming().agreedEntitlementsSnapshot == existing().agreedEntitlementsSnapshot &&
+            incoming().cycleStartMillis == existing().cycleStartMillis &&
+            incoming().cycleEndMillis == existing().cycleEndMillis &&
+            incoming().gracePeriodEndMillis == existing().gracePeriodEndMillis &&
+            incoming().creditBalanceMinor == existing().creditBalanceMinor &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['autoRenew', 'cancelAtPeriodEnd', 'cancelledAtMillis', 'pendingUpgradePlanId', 'status', 'updatedAt']) &&
+            (incoming().status == existing().status ||
+              (incoming().status == 'CANCELLED' && existing().status in ['ACTIVE', 'EXPIRING_SOON', 'TRIALING', 'GRACE_PERIOD']) ||
+              (incoming().status == 'PENDING_PAYMENT' && existing().status in ['AWAITING_SUBSCRIPTION', 'EXPIRED', 'CANCELLED', 'PAST_DUE']))
+          ) || (
+            isBusinessOwner(businessId) &&
+            existing().status == 'AWAITING_SUBSCRIPTION' &&
+            incoming().ownerUid == request.auth.uid &&
+            incoming().status == 'TRIALING' &&
+            incoming().planId == 'plan_trial_90d' &&
+            incoming().planCode == 'FREE_TRIAL' &&
+            incoming().agreedPriceMinor == 0 &&
+            incoming().agreedIntervalDays == 90 &&
+            incoming().creditBalanceMinor == 0 &&
+            incoming().cycleStartMillis is int &&
+            incoming().cycleEndMillis is int &&
+            incoming().trialEndMillis == incoming().cycleEndMillis &&
+            incoming().cycleEndMillis > incoming().cycleStartMillis &&
+            (incoming().cycleEndMillis - incoming().cycleStartMillis) <= 7862400000 &&
+            incoming().cycleEndMillis <= request.time.toMillis() + 7862400000
+          ) || (
+            incoming().ownerUid == request.auth.uid &&
+            incoming().status == 'ACTIVE' &&
+            incoming().creditBalanceMinor == 0 &&
+            isPaystackBatchPaymentAfter(incoming().lastPaymentId, businessId)
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /subscription_payments/{paymentId} {
+      allow get: if isSignedIn() && isValidId(paymentId) && (isSuperAdmin() || (resource != null && existing().ownerUid == request.auth.uid));
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(paymentId) &&
+        isValidSubscriptionPayment(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        isBusinessOwner(incoming().businessId) && (
+          incoming().paymentStatus == 'PENDING' || (
+            isVerifiedPaystackPaymentDoc(incoming(), incoming().businessId) &&
+            existsAfter(/databases/$(database)/documents/business_subscriptions/$(incoming().businessId))
+          )
+        );
+      allow update: if isSignedIn() && isValidId(paymentId) &&
+        isValidSubscriptionPayment(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().businessId == existing().businessId &&
+        incoming().txRef == existing().txRef &&
+        incoming().createdAt == existing().createdAt &&
+        isSuperAdmin();
+      allow delete: if false;
+    }
+
+    match /subscription_invoices/{invoiceId} {
+      allow get: if isSignedIn() && isValidId(invoiceId) && (
+        isSuperAdmin() ||
+        (resource != null && (existing().ownerUid == request.auth.uid || isBusinessMember(existing().businessId)))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(invoiceId) &&
+        isValidSubscriptionInvoice(incoming()) && (
+          isSuperAdmin() || (
+            incoming().ownerUid == request.auth.uid &&
+            incoming().status == 'PAID' &&
+            ('paymentId' in incoming()) &&
+            isPaystackBatchPaymentAfter(incoming().paymentId, incoming().businessId)
+          )
+        );
+      allow update: if isSuperAdmin() && isValidId(invoiceId) && isValidSubscriptionInvoice(incoming());
+      allow delete: if false;
+    }
+
+    match /usage_records/{recordId} {
+      allow get: if isSignedIn() && isValidId(recordId) && (
+        isSuperAdmin() ||
+        isBusinessMember(recordId.split('_rct_')[0]) ||
+        isBusinessMember(recordId.split('_ocr_')[0]) ||
+        (resource != null && isBusinessMemberDoc(existing()))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(recordId) &&
+        isValidUsageRecord(incoming()) && (
+          isSuperAdmin() || (
+            isBusinessMember(incoming().businessId) &&
+            incoming().actorUid == request.auth.uid
+          )
+        );
+      allow update, delete: if false;
+    }
+
+    match /usage_quotas/{quotaId} {
+      allow get: if isSignedIn() && isValidId(quotaId) && (
+        isSuperAdmin() ||
+        isBusinessMember(quotaId.split('_current')[0]) ||
+        (resource != null && isBusinessMemberDoc(existing()))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(quotaId) &&
+        isValidUsageQuota(incoming()) && (
+          isSuperAdmin() || (
+            isBusinessMember(incoming().businessId) &&
+            incoming().receiptsUsed <= 1 &&
+            incoming().ocrUsed <= 1 &&
+            incoming().rolloverReceipts == 0 &&
+            incoming().overageReceiptsUsed >= 0
+          )
+        );
+      allow update: if isSignedIn() && isValidId(quotaId) &&
+        isValidUsageQuota(incoming()) &&
+        incoming().businessId == existing().businessId &&
+        incoming().ownerUid == existing().ownerUid && (
+          isSuperAdmin() || (
+            isBusinessMember(existing().businessId) &&
+            incoming().receiptsAllocated == existing().receiptsAllocated &&
+            incoming().ocrAllocated == existing().ocrAllocated &&
+            incoming().rolloverReceipts == existing().rolloverReceipts &&
+            incoming().cycleKey == existing().cycleKey &&
+            incoming().cycleStartMillis == existing().cycleStartMillis &&
+            incoming().cycleEndMillis == existing().cycleEndMillis &&
+            incoming().receiptsUsed >= existing().receiptsUsed &&
+            incoming().ocrUsed >= existing().ocrUsed &&
+            incoming().overageReceiptsUsed >= existing().overageReceiptsUsed
+          ) || (
+            incoming().ownerUid == request.auth.uid &&
+            incoming().receiptsUsed == 0 &&
+            incoming().ocrUsed == 0 &&
+            isPaystackBatchSubscriptionAfter(existing().businessId)
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /storage_usage/{businessId} {
+      allow get: if isSignedIn() && isValidId(businessId) && (
+        isSuperAdmin() ||
+        isBusinessMember(businessId) ||
+        (resource != null && isBusinessMemberDoc(existing()))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(businessId) &&
+        isValidStorageUsage(incoming(), businessId) && (
+          isSuperAdmin() || isBusinessMember(businessId)
+        );
+      allow update: if isSignedIn() && isValidId(businessId) &&
+        isValidStorageUsage(incoming(), businessId) &&
+        incoming().businessId == existing().businessId &&
+        incoming().ownerUid == existing().ownerUid && (
+          isSuperAdmin() || (
+            isBusinessMember(businessId) &&
+            incoming().allocatedBytes == existing().allocatedBytes &&
+            incoming().limitBehavior == existing().limitBehavior
+          ) || (
+            incoming().ownerUid == request.auth.uid &&
+            isPaystackBatchSubscriptionAfter(businessId)
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /subscription_events/{eventId} {
+      allow get, list: if isSuperAdmin();
+      allow create: if isSignedIn() && isValidId(eventId) &&
+        isValidSubscriptionEvent(incoming()) && (
+          isSuperAdmin() || (
+            incoming().actorUid == request.auth.uid &&
+            ('businessId' in incoming()) &&
+            incoming().businessId is string &&
+            isBusinessMember(incoming().businessId)
+          )
+        );
+      allow update, delete: if false;
+    }
+
+    match /plan_change_history/{changeId} {
+      allow get: if isSignedIn() && isValidId(changeId) && (
+        isSuperAdmin() ||
+        (resource != null && (existing().ownerUid == request.auth.uid || isBusinessMember(existing().businessId)))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(changeId) &&
+        isValidPlanChangeHistory(incoming()) && (
+          isSuperAdmin() || (
+            isBusinessOwner(incoming().businessId) &&
+            incoming().actorUid == request.auth.uid &&
+            incoming().changeType in ['CANCELLATION']
+          ) || (
+            incoming().ownerUid == request.auth.uid &&
+            incoming().actorUid == request.auth.uid &&
+            incoming().changeType in ['NEW', 'RENEWAL', 'UPGRADE', 'DOWNGRADE', 'REACTIVATION'] &&
+            isPaystackBatchSubscriptionAfter(incoming().businessId)
+          )
+        );
+      allow update, delete: if false;
+    }
+
+    match /custom_business_entitlements/{businessId} {
+      allow get: if isSignedIn() && isValidId(businessId) && (
+        isSuperAdmin() || isBusinessMember(businessId)
+      );
+      allow list: if isSuperAdmin();
+      allow create, update: if isSuperAdmin() && isValidId(businessId) && isValidCustomBusinessEntitlement(incoming(), businessId);
+      allow delete: if isSuperAdmin() && isValidId(businessId);
+    }
+
+    match /mail_notifications/{mailId} {
+      allow get, list: if isSuperAdmin();
+      allow create: if isSignedIn() && isValidId(mailId) &&
+        isValidMailNotification(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().deliveryStatus == 'QUEUED' &&
+        isBusinessMember(incoming().businessId);
+      allow update: if isSuperAdmin() && isValidId(mailId) && isValidMailNotification(incoming());
+      allow delete: if false;
+    }
+
+    match /support_tickets/{ticketId} {
+      allow get: if isSignedIn() && isValidId(ticketId) && (isSuperAdmin() || (resource != null && existing().ownerUid == request.auth.uid));
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(ticketId) &&
+        isValidSupportTicket(incoming()) &&
+        incoming().ownerUid == request.auth.uid &&
+        incoming().status == 'OPEN';
+      allow update: if isSignedIn() && isValidId(ticketId) &&
+        isValidSupportTicket(incoming()) &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().businessId == existing().businessId &&
+        incoming().createdAt == existing().createdAt &&
+        (isSuperAdmin() || (
+          existing().ownerUid == request.auth.uid &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['description', 'emailNotificationStatus', 'emailNotificationError', 'updatedAt']) &&
+          (!('emailNotificationStatus' in incoming()) || incoming().emailNotificationStatus in ['QUEUED', 'SENT', 'FAILED'])
+        ));
+      allow delete: if false;
+    }
+
+    match /public_verifications/{verificationCode} {
+      allow get: if isValidId(verificationCode) && (
+        resource == null ||
+        resource.data.publicVerificationEnabled == true ||
+        (isSignedIn() && (
+          isBusinessMemberDoc(resource.data) ||
+          isBusinessMember(resource.data.businessId) ||
+          isSuperAdmin()
+        ))
+      );
+      allow list: if isSuperAdmin() || (isSignedIn() && request.auth.uid in resource.data.memberUids);
+      allow create: if isSignedIn() && isValidId(verificationCode) &&
+        isValidPublicVerification(incoming(), verificationCode) &&
+        isBusinessMember(incoming().businessId);
+      allow update: if isSignedIn() && isValidId(verificationCode) &&
+        isValidPublicVerification(incoming(), verificationCode) &&
+        incoming().businessId == existing().businessId &&
+        incoming().ownerUid == existing().ownerUid &&
+        incoming().createdAt == existing().createdAt &&
+        isBusinessMember(existing().businessId);
+      allow delete: if false;
+    }
+  }
+}

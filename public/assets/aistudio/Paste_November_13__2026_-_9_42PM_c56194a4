@@ -1,0 +1,1729 @@
+# MASTER SOFTWARE DEVELOPMENT PROMPT
+# 1803Receipts
+## AI-POWERED BUSINESS RECEIPT GENERATION, FINANCIAL RECORD MANAGEMENT & SUBSCRIPTION SAAS PLATFORM
+
+**Platform Owner:** 1803 CONSULT  
+**Application Name:** 1803Receipts  
+**Application Icon Text:** 1803R  
+**Target Platform:** Android (Primary), with Web-Based Super Admin Portal  
+**Primary Market:** Nigeria  
+**Currency:** Nigerian Naira (₦ / NGN)  
+**Timezone:** Africa/Lagos  
+**Business Model:** Monthly and Annual Subscription  
+**Primary Output:** High-Resolution Landscape PNG Receipt  
+**Payment Gateway:** Flutterwave  
+**Backend:** Production Cloud Infrastructure  
+
+---
+
+# PART 1: PROJECT VISION AND DEVELOPMENT OBJECTIVE
+
+Act as an elite team of senior Android developers, SaaS architects, Kotlin/Flutter engineers, AI and OCR specialists, financial technology engineers, database architects, cybersecurity specialists, UI/UX designers, DevOps engineers and product managers.
+
+Your assignment is to design, develop, test, deploy and maintain a complete, professional, secure and scalable commercial Android application called **1803Receipts**.
+
+1803Receipts is a subscription-based business receipt generation platform owned and operated by 1803 CONSULT.
+
+The application will serve independent Nigerian business owners, entrepreneurs, retailers, educational consultants, service providers, freelancers, small businesses and registered companies.
+
+Its primary purpose is to allow business owners to upload bank transaction receipts, automatically extract transaction information, enter the customer's name and payment purpose, and generate a professional Nigerian business payment receipt bearing their own business logo, identity and brand colours.
+
+The application must also provide business owners with customer management, transaction history, financial reporting, receipt verification, cloud backup and business analytics.
+
+1803 CONSULT will operate the platform through a dedicated Super Admin system that monitors registered businesses, subscriptions, payments, subscription revenue, application usage and platform performance.
+
+**This must be a genuine production SaaS application, not a demo, prototype, test project or static interface.**
+
+## STRICT DEVELOPMENT RULES
+
+Do not include:
+- Pre-created business accounts.
+- Default administrator accounts.
+- Demo login credentials.
+- Sample customers.
+- Dummy transactions.
+- Fake payment records.
+- Pre-generated receipt records.
+- Artificial subscription revenue.
+- Simulated Flutterwave transactions.
+- Placeholder dashboards.
+- Fake analytics.
+- Non-functional navigation.
+- Buttons that do not perform their advertised functions.
+- Mock backend responses presented as live data.
+
+All production data must originate from actual registered users and genuine application activities.
+
+Complete the backend, database, authentication, subscription engine, OCR, receipt generation, analytics, integrations and deployment.
+
+---
+
+# PART 2: APPLICATION BRANDING AND ICON
+
+## 2.1 Official Application Identity
+
+Application name: 1803Receipts
+
+Short identity: 1803R
+
+Platform ownership: 1803 CONSULT.
+
+Design an attractive, distinctive and professional application identity.
+
+## 2.2 Android Application Icon
+
+Create an original, stylish Android launcher icon featuring:
+
+**1803R**
+
+The characters must be the primary visual element.
+
+Design characteristics:
+- Premium financial technology appearance.
+- Modern corporate styling.
+- Strong and readable typography.
+- Elegant geometric arrangement.
+- Professional contrast.
+- Rounded-square adaptive icon.
+- Recognisable at small mobile screen sizes.
+
+Create:
+- Main Android launcher icon.
+- Adaptive foreground icon.
+- Adaptive background icon.
+- Splash screen.
+- Application logo.
+- High-resolution brand assets.
+
+Do not use a generic receipt illustration as the primary icon.
+
+The application must display 1803Receipts as its name and 1803R as its icon identity.
+
+## 2.3 Brand Identity
+
+Use a professional colour system inspired by 1803 CONSULT's original branding.
+
+The application should have its own distinctive visual identity while maintaining its ownership association with 1803 CONSULT.
+
+---
+
+# PART 3: MULTI-BUSINESS SAAS ARCHITECTURE
+
+Implement a secure multi-tenant architecture.
+
+Every registered business must receive its own isolated workspace.
+
+The platform must support multiple independent businesses without mixing their data.
+
+Each business must have:
+- A unique business ID.
+- An independent owner account.
+- A business profile.
+- A custom logo.
+- Custom brand colours.
+- Independent receipt numbering.
+- Its own customers.
+- Its own bank transaction records.
+- Its own generated receipts.
+- Its own financial reports.
+- Its own staff accounts.
+- Its own subscription.
+- Its own cloud storage allocation.
+
+A business owner must never access another business's private information.
+
+1803 CONSULT, as platform owner, must have a separate administrative environment with platform-level monitoring and management privileges.
+
+---
+
+# PART 4: USER TYPES AND ACCESS LEVELS
+
+Create four principal user categories.
+
+## 4.1 SUPER ADMIN – 1803 CONSULT
+
+The Super Admin controls the entire 1803Receipts platform.
+
+Permissions include:
+- Manage all registered businesses.
+- Monitor subscription payments.
+- Monitor platform revenue.
+- View business owner profiles.
+- Manage subscription plans.
+- Configure Flutterwave.
+- Suspend and reactivate accounts.
+- Manage platform announcements.
+- Monitor application activity.
+- View platform analytics.
+- Manage support tickets.
+- Configure platform settings.
+- Review audit logs.
+- Manage platform storage policies.
+- Export business and subscription reports.
+
+The Super Admin must have a separate secure web dashboard, accessible through an authorised browser.
+
+## 4.2 BUSINESS OWNER
+
+The business owner has complete administrative control over their own business workspace.
+
+Permissions include:
+- Manage business profile.
+- Upload business logo.
+- Configure brand colours.
+- Generate receipts.
+- Manage customers.
+- View transactions.
+- Manage receipt templates.
+- View financial analytics.
+- Export reports.
+- Manage staff.
+- Manage subscription.
+- Configure receipt settings.
+- Access cloud backups.
+- Contact support.
+
+## 4.3 BUSINESS STAFF
+
+Allow business owners to invite staff members.
+
+Create configurable roles:
+
+**RECEIPT OFFICER**
+- Upload bank transaction documents.
+- Extract transaction information.
+- Enter customer details.
+- Generate receipts.
+- View authorised receipt records.
+
+**VERIFICATION OFFICER**
+- Review transaction details.
+- Confirm payments against appropriate financial records.
+- Reject suspicious transactions.
+- Record verification comments.
+
+**ACCOUNTANT / REPORT VIEWER**
+- View permitted financial reports.
+- Export authorised reports.
+- Review transaction history.
+- Access authorised financial records.
+
+**BUSINESS MANAGER**
+- Manage operational settings.
+- Manage customers.
+- Manage receipts.
+- Supervise authorised staff.
+
+Business owners must be able to invite, deactivate and manage staff permissions.
+
+Every staff action must be attributable to the staff member responsible.
+
+## 4.4 CUSTOMERS
+
+Customers do not need to create accounts to receive receipts.
+
+They should be able to:
+- Receive receipts through WhatsApp.
+- Receive receipts through email.
+- Download receipt images.
+- Scan QR codes.
+- Verify receipt authenticity.
+- View the public information associated with a receipt.
+
+---
+
+# PART 5: BUSINESS OWNER REGISTRATION AND ONBOARDING
+
+Create a professional multi-step registration system.
+
+## STEP 1: OWNER INFORMATION
+
+Collect:
+- Full name.
+- Phone number.
+- Email address.
+- Password.
+- Country.
+- State.
+- City.
+- Residential or contact address.
+
+Implement email verification and secure authentication.
+
+## STEP 2: BUSINESS INFORMATION
+
+Collect:
+- Registered business name.
+- Trading name.
+- Business category.
+- Business description.
+- Business address.
+- Business telephone number.
+- Business email.
+- Business website.
+- CAC registration number, where applicable.
+- Social media accounts, optionally.
+- Name of authorised representative.
+
+Support:
+- Sole Proprietorship.
+- Business Name.
+- Limited Liability Company.
+- Partnership.
+- Other Business Structure.
+
+Do not require a CAC number from every business.
+
+## STEP 3: BUSINESS LOGO
+
+Allow the owner to upload their actual logo.
+
+Supported formats:
+- PNG.
+- JPEG.
+- JPG.
+- WebP.
+
+Provide:
+- Image preview.
+- Cropping.
+- Resizing.
+- Replacement.
+- Removal.
+- Transparent background support.
+
+The logo must automatically appear on all receipts generated by that business.
+
+## STEP 4: BRAND COLOUR EXTRACTION
+
+Automatically analyse the uploaded logo.
+
+Extract:
+- Primary colour.
+- Secondary colour.
+- Accent colour.
+- Suitable background colour.
+- Suitable typography colours.
+
+Apply the colours to:
+- Receipt templates.
+- Business dashboard.
+- Receipt headers.
+- Footer.
+- Borders.
+- Accent elements.
+
+Allow manual colour adjustment.
+
+Preserve the original uploaded logo.
+
+## STEP 5: BUSINESS PREFERENCES
+
+Allow configuration of:
+- Default currency.
+- Receipt prefix.
+- Receipt numbering format.
+- Default acknowledgement message.
+- Business slogan.
+- Signature.
+- Business stamp.
+- Contact information.
+- Receipt verification settings.
+- Default receipt template.
+
+Default currency should be NGN.
+
+## STEP 6: SUBSCRIPTION
+
+Allow the owner to select monthly or annual subscription.
+
+Complete registration and subscription onboarding without requiring a manually created account.
+
+---
+
+# PART 6: SUBSCRIPTION PLANS AND COMMERCIAL MODEL
+
+1803 CONSULT earns revenue from business subscriptions.
+
+## 6.1 Monthly Subscription
+
+Price: ₦1,500.
+
+Duration: One calendar month.
+
+## 6.2 Annual Subscription
+
+Price: ₦18,000.
+
+Duration: Twelve calendar months.
+
+Annual calculation: ₦1,500 × 12.
+
+Subscription pricing must be centrally configurable by the Super Admin.
+
+Do not hardcode prices in the Android application.
+
+## 6.3 Subscription Payment Flow
+
+1. Business owner registers.
+2. Business owner completes the business profile.
+3. Owner selects a subscription plan.
+4. Backend creates a unique payment reference.
+5. Flutterwave checkout opens.
+6. Customer completes payment.
+7. Backend validates payment notification.
+8. Backend independently verifies the transaction.
+9. Amount and currency are checked.
+10. Payment reference is validated.
+11. Duplicate processing is prevented.
+12. Subscription is activated immediately after successful verification.
+13. Expiry date is calculated.
+14. Payment record is saved.
+15. Confirmation notification is sent.
+
+Only a genuinely verified successful payment may activate a paid subscription.
+
+## 6.4 Subscription Status
+
+Implement:
+- Awaiting Subscription.
+- Pending Payment.
+- Active.
+- Expiring Soon.
+- Expired.
+- Cancelled.
+- Suspended.
+
+## 6.5 Subscription Renewal
+
+Allow renewal at any time.
+
+Provide:
+- Renew Monthly.
+- Renew Annually.
+- Current Plan.
+- Payment History.
+- Activation Date.
+- Expiry Date.
+- Renewal Date.
+
+An early renewal must extend the remaining subscription period correctly.
+
+## 6.6 Expiry Management
+
+Send notifications:
+- Seven days before expiry.
+- Three days before expiry.
+- One day before expiry.
+- On expiry.
+- After expiry.
+
+When expired:
+- Disable new receipt generation.
+- Restrict paid features.
+- Preserve existing receipts.
+- Preserve customer records.
+- Preserve uploaded documents.
+- Preserve reports.
+- Allow renewal.
+
+Do not delete historical business data because of an expired subscription.
+
+---
+
+# PART 7: FLUTTERWAVE PAYMENT GATEWAY
+
+Integrate Flutterwave as the platform's official subscription payment gateway.
+
+Create a dedicated Super Admin payment settings module.
+
+Allow the Super Admin to configure:
+- Public key.
+- Secret key.
+- Encryption key, if required by the chosen integration.
+- Webhook configuration.
+- Environment.
+- Currency.
+- Payment settings.
+
+All secret credentials must be securely stored server-side.
+
+Never expose the secret key in:
+- Android application code.
+- Frontend source code.
+- Browser responses.
+- Ordinary user settings.
+- Public API responses.
+
+Use Flutterwave's current supported payment APIs and transaction verification process.
+
+Implement:
+- Server-side payment initiation.
+- Secure webhook verification.
+- Transaction verification.
+- Idempotency.
+- Duplicate payment protection.
+- Payment reconciliation.
+- Failed payment handling.
+- Payment history.
+- Refund status recording where applicable.
+
+Subscription payments to 1803 CONSULT must be stored separately from the bank transactions uploaded by individual business owners.
+
+---
+
+# PART 8: AI-POWERED BANK RECEIPT UPLOAD
+
+This is the central operational function.
+
+Allow each subscribed business owner to upload a customer's bank transaction receipt.
+
+Supported formats:
+- PNG.
+- JPG.
+- JPEG.
+- PDF.
+
+Upload methods:
+- Android gallery.
+- Android camera.
+- File manager.
+- Document picker.
+- Drag-and-drop in supported web interfaces.
+
+Provide:
+- File preview.
+- PDF preview.
+- Upload progress.
+- Replace document.
+- Remove document.
+- Retry failed upload.
+
+Support receipts from Nigerian banks and financial institutions, including:
+
+GTBank, Access Bank, UBA, Zenith Bank, FirstBank, Fidelity Bank, FCMB, Union Bank, Sterling Bank, Moniepoint, Opay, PalmPay, Kuda and other financial institutions.
+
+Do not rely on fixed bank templates.
+
+---
+
+# PART 9: INTELLIGENT OCR AND TRANSACTION EXTRACTION
+
+Implement a robust OCR and document intelligence pipeline.
+
+Automatically extract all identifiable details.
+
+## 9.1 Transaction Information
+
+- Transaction amount.
+- Currency.
+- Transaction date.
+- Transaction time.
+- Transaction reference.
+- Session ID.
+- Transaction ID.
+- Bank-generated receipt number.
+- Payment narration.
+- Transaction description.
+- Transfer channel.
+- Transaction status.
+- Transfer fee.
+- Other available transaction identifiers.
+
+## 9.2 Sender Information
+
+- Sender's full name.
+- Sender's account name.
+- Sender's bank.
+- Sender's account number, where displayed.
+
+## 9.3 Beneficiary Information
+
+- Beneficiary's name.
+- Beneficiary's account name.
+- Beneficiary's bank.
+- Beneficiary's account number, where displayed.
+
+## 9.4 Extraction Rules
+
+- Preserve original transaction information.
+- Never invent missing fields.
+- Never change amounts.
+- Never fabricate references.
+- Never assume sender and customer are the same person.
+- Highlight uncertain information.
+- Provide OCR confidence scores.
+- Allow manual correction.
+- Require human review before receipt issuance.
+
+Mask sensitive account information on public receipts by default.
+
+---
+
+# PART 10: CUSTOMER AND PAYMENT PURPOSE ENTRY
+
+After OCR extraction, display a complete editable transaction form.
+
+Customer information:
+- Customer name.
+- Phone number.
+- Email.
+- Address, optionally.
+- Customer ID, optionally.
+
+Payment information:
+- Purpose of payment.
+- Service or product description.
+- Invoice number.
+- Order number.
+- Additional notes.
+- Quantity.
+- Unit price, where applicable.
+- Discount, where applicable.
+
+Allow multiple service items on one receipt.
+
+Provide a configurable service or product catalogue for businesses that need it.
+
+The amount on the receipt must remain traceable to the uploaded transaction. Any discrepancy or adjustment must be explicitly recorded and must never be silently substituted.
+
+---
+
+# PART 11: OFFICIAL NIGERIAN BUSINESS RECEIPT GENERATOR
+
+Generate professional Nigerian commercial payment receipts.
+
+The receipt must be a business-issued acknowledgement, not a bank-issued or government-issued document.
+
+## 11.1 OUTPUT FORMAT
+
+Primary: PNG.
+
+Secondary: JPEG.
+
+Orientation: LANDSCAPE.
+
+Recommended image dimensions:
+1600 × 1100 pixels or higher, with high-resolution text and logo rendering.
+
+Use responsive content layout so additional transaction details are accommodated without cutting off information.
+
+## 11.2 MANDATORY RECEIPT CONTENT
+
+### Business Header
+
+- Business logo.
+- Business name.
+- Business address.
+- Business phone number.
+- Business email.
+- Website.
+- CAC number, if supplied.
+
+### Receipt Identification
+
+- Official Payment Receipt.
+- Unique receipt number.
+- Receipt generation date.
+- Transaction date.
+- Transaction time.
+
+### Customer Information
+
+- Customer's full name.
+- Customer's phone number.
+- Customer's email, if provided.
+
+### Payment Information
+
+- Amount paid.
+- Amount in words.
+- Purpose of payment.
+- Payment method.
+- Sending bank.
+- Sender's account name.
+- Sender's account number, where permitted.
+- Beneficiary's bank.
+- Beneficiary's account name.
+- Beneficiary's account number, where permitted.
+- Transaction reference.
+- Session ID.
+- Transaction ID.
+- Payment narration.
+- Transfer channel.
+- Transaction status.
+- Transfer fee, where displayed.
+
+### Payment Acknowledgement
+
+Use the following default statement:
+
+"Received with thanks from the above-named customer the sum stated herein for the service or goods described in this receipt."
+
+Allow businesses to customise the acknowledgement.
+
+### Footer
+
+- Business slogan.
+- Authorised representative's name.
+- Signature area.
+- Business stamp, optionally.
+- QR verification.
+- Receipt disclaimer.
+
+Every available relevant transaction detail from the original uploaded bank document must be represented appropriately.
+
+Do not fabricate missing details.
+
+---
+
+# PART 12: MULTIPLE RECEIPT TEMPLATES
+
+Provide three professionally designed receipt templates.
+
+## TEMPLATE 1: STANDARD NIGERIAN BUSINESS RECEIPT
+
+A conventional, clean landscape receipt.
+
+Suitable for:
+- Small businesses.
+- Retailers.
+- Educational consultants.
+- Service providers.
+
+## TEMPLATE 2: PREMIUM CORPORATE RECEIPT
+
+A sophisticated branded receipt with:
+- Prominent logo.
+- Strong business identity.
+- Elegant header.
+- Structured transaction information.
+- Premium footer.
+
+Suitable for:
+- Registered companies.
+- Corporate organisations.
+- Professional consultants.
+
+## TEMPLATE 3: COMPACT PAYMENT RECEIPT
+
+A compact landscape design with:
+- Clear customer name.
+- Prominent payment amount.
+- Purpose of payment.
+- Transaction reference.
+- Essential banking details.
+
+Suitable for:
+- High-volume businesses.
+- Retailers.
+- Quick customer acknowledgements.
+
+### TEMPLATE CUSTOMISATION
+
+Business owners can:
+- Select their default template.
+- Preview templates.
+- Change colours.
+- Change typography options.
+- Adjust logo placement.
+- Configure footer text.
+- Configure signature display.
+- Configure QR visibility.
+
+Do not allow customisation to remove mandatory transaction information without appropriate warnings.
+
+The original business logo must be preserved.
+
+---
+
+# PART 13: RECEIPT NUMBERING AND RECORD MANAGEMENT
+
+Each business must have its own independent numbering sequence.
+
+Example:
+
+1803C/RCT/2026/000001
+
+1803C/RCT/2026/000002
+
+ABC/RCT/2026/000001
+
+XYZ/RCT/2026/000001
+
+Allow custom receipt prefixes.
+
+Requirements:
+- Sequential numbering per business.
+- Year identification.
+- Database-controlled generation.
+- No duplicate numbers.
+- Concurrent generation protection.
+- Permanent historical record.
+- Restricted editing.
+- Auditable cancellation.
+
+A receipt number must never be reused.
+
+---
+
+# PART 14: QR CODE RECEIPT VERIFICATION
+
+Automatically generate a unique verification identifier for each issued receipt.
+
+Include a QR code on the receipt when enabled.
+
+Scanning the code opens a secure public verification page.
+
+Display:
+- Business name.
+- Business logo.
+- Receipt number.
+- Receipt date.
+- Customer name, subject to privacy settings.
+- Payment amount.
+- Payment purpose.
+- Verification status.
+
+Do not display:
+- Full bank account numbers.
+- Private customer contact information.
+- Original uploaded bank receipts.
+- Internal business records.
+
+Allow businesses to enable or disable public verification.
+
+The QR code must always point to the correct receipt record.
+
+Receipt status changes must be reflected accurately.
+
+---
+
+# PART 15: RECEIPT IMAGE DOWNLOAD, SHARING AND PRINTING
+
+After generation, display the actual receipt image.
+
+Provide functional controls:
+
+1. Download PNG.
+2. Download JPEG.
+3. Share image.
+4. WhatsApp sharing.
+5. Email sharing.
+6. Print receipt.
+7. Copy verification link.
+8. View receipt details.
+9. Generate another receipt.
+
+The generated image must be independent of the application interface.
+
+Do not create receipts by taking screenshots of the Android screen.
+
+Maintain a copy of the issued image in secure cloud storage.
+
+---
+
+# PART 16: WHATSAPP AND EMAIL DELIVERY
+
+Implement native Android sharing and optional business messaging integrations.
+
+Default WhatsApp message:
+
+"Dear [Customer Name],
+
+Thank you for choosing [Business Name].
+
+We acknowledge your payment of ₦[Amount] for [Purpose of Payment].
+
+Receipt Number: [Receipt Number]
+
+Your payment acknowledgement receipt is attached or available through the following link:
+
+[Receipt Link]
+
+Thank you for your patronage.
+
+[Business Name]"
+
+Email:
+- Send receipt images as attachments where supported.
+- Include secure verification links.
+- Maintain delivery history.
+- Report delivery failures.
+- Allow message customisation.
+
+Distinguish between opening WhatsApp, preparing a message and confirming actual message delivery.
+
+Do not claim successful delivery without confirmation from an integrated messaging provider.
+
+---
+
+# PART 17: CUSTOMER MANAGEMENT AND CRM
+
+Provide an independent customer management module for every business.
+
+Features:
+- Add customer.
+- Edit customer.
+- Search customer.
+- View customer profile.
+- View customer payment history.
+- View receipt history.
+- View total verified payments.
+- View services purchased.
+- Download previous receipts.
+- Share previous receipts.
+
+Automatically associate generated receipts with existing or new customers.
+
+Prevent duplicate records through reliable matching.
+
+Allow customer data export by authorised business owners.
+
+---
+
+# PART 18: BUSINESS DASHBOARD AND ANALYTICS
+
+Every business owner must have a personal dashboard.
+
+Display:
+
+- Total receipts generated.
+- Total verified transactions.
+- Pending transactions.
+- Rejected transactions.
+- Reversed transactions.
+- Total verified revenue.
+- Today's verified payments.
+- Weekly verified payments.
+- Monthly verified payments.
+- Total registered customers.
+
+Charts:
+- Daily payment activity.
+- Monthly revenue.
+- Revenue by service or product.
+- Payment verification status.
+- Customer payment trends.
+
+Provide filters for:
+- Today.
+- Yesterday.
+- Last seven days.
+- Last thirty days.
+- Current month.
+- Previous month.
+- Current year.
+- Custom date range.
+
+All metrics must be based on the business's real database records.
+
+Pending transactions must not be counted as verified revenue.
+
+---
+
+# PART 19: FINANCIAL REPORTING AND EXPORTS
+
+Allow business owners to generate:
+
+- Daily receipt reports.
+- Weekly transaction reports.
+- Monthly financial reports.
+- Annual financial reports.
+- Customer payment reports.
+- Service-based reports.
+- Verified transaction reports.
+- Pending transaction reports.
+- Rejected payment reports.
+- Reversed payment reports.
+
+Export:
+- Excel.
+- CSV.
+- PDF.
+
+Reports must show the business name and relevant reporting period.
+
+Maintain clear distinctions between payment claims, verified receipts and reversed transactions.
+
+---
+
+# PART 20: AUTOMATIC CLOUD BACKUP AND RESTORATION
+
+Implement automatic cloud storage and backup.
+
+Every business must have isolated storage.
+
+Automatically save:
+- Business logos.
+- Customer records.
+- Uploaded bank receipts.
+- Extracted transaction information.
+- Generated receipt images.
+- Receipt history.
+- Business settings.
+- Audit logs.
+
+Requirements:
+- Secure cloud storage.
+- Automatic database backups.
+- Backup retention policy.
+- Recovery mechanism.
+- Storage monitoring.
+- File integrity checks.
+- Secure restoration.
+
+A business owner must be able to log in from a new Android device and recover their existing records.
+
+Do not rely exclusively on local Android storage.
+
+Preserve existing issued receipts even when a business changes its logo or receipt design.
+
+---
+
+# PART 21: OFFLINE DRAFT AND SYNCHRONISATION
+
+Provide limited offline functionality.
+
+When internet connectivity is unavailable:
+- Allow operators to save incomplete receipt drafts locally.
+- Allow them to prepare customer information.
+- Allow them to view previously cached records where authorised.
+- Display clear offline status.
+
+When connectivity returns:
+- Synchronise saved drafts securely.
+- Upload pending files.
+- Detect duplicate submissions.
+- Confirm successful server storage.
+
+Do not generate a final verified receipt or confirm a transaction's status solely from an offline operation.
+
+Every synchronised operation must be safely traceable.
+
+---
+
+# PART 22: BUSINESS STAFF AND MULTI-USER MANAGEMENT
+
+Allow business owners to invite staff.
+
+Provide:
+- Staff invitation.
+- Role assignment.
+- Staff activation.
+- Staff deactivation.
+- Permission management.
+- Login history.
+- Activity history.
+
+Support multiple staff members working within one business account.
+
+Enforce role-based permissions.
+
+Every issued receipt must record the responsible user.
+
+---
+
+# PART 23: BUSINESS SETTINGS AND STORAGE MANAGEMENT
+
+Create a complete business settings module.
+
+Settings:
+- Business information.
+- Business logo.
+- Brand colours.
+- Receipt templates.
+- Receipt numbering.
+- Receipt footer.
+- Customer communication.
+- Staff accounts.
+- Security settings.
+- Subscription.
+- Cloud storage usage.
+- Data exports.
+- Account deletion requests.
+
+Display:
+- Storage used.
+- Number of uploaded documents.
+- Number of generated receipts.
+- Available storage allocation.
+
+If storage limits are introduced, the Super Admin must be able to configure them centrally.
+
+Do not silently delete files when a storage limit is reached.
+
+Provide clear notifications and upgrade or storage-management options.
+
+---
+
+# PART 24: SUPER ADMIN WEB CONTROL PANEL
+
+Build a dedicated, secure, responsive web-based Super Admin portal for 1803 CONSULT.
+
+The Super Admin portal must be separate from ordinary business-owner access.
+
+## 24.1 PLATFORM DASHBOARD
+
+Display:
+
+- Total registered business owners.
+- Total registered businesses.
+- Active subscribers.
+- Monthly subscribers.
+- Annual subscribers.
+- Expired subscriptions.
+- Suspended businesses.
+- Pending payments.
+- Total subscription revenue.
+- Current monthly revenue.
+- Current annual revenue.
+- New registrations.
+- Renewals.
+- Cancellation records.
+
+## 24.2 REVENUE ANALYTICS
+
+Create charts for:
+- Daily subscription revenue.
+- Monthly subscription revenue.
+- Annual subscription revenue.
+- Monthly plan performance.
+- Annual plan performance.
+- Subscription renewals.
+- New subscriptions.
+- Expired subscriptions.
+- Payment failures.
+
+Separate collected revenue from pending, failed and refunded transactions.
+
+## 24.3 BUSINESS OWNER REGISTER
+
+Display:
+
+- Owner's full name.
+- Business name.
+- Phone number.
+- Email address.
+- Business category.
+- Registration date.
+- Subscription plan.
+- Amount paid.
+- Subscription duration.
+- Activation date.
+- Expiry date.
+- Subscription status.
+- Total receipts generated.
+- Storage usage.
+- Last login.
+
+Provide individual business profile views.
+
+## 24.4 SUPER ADMIN ACTIONS
+
+Allow:
+- Viewing business profiles.
+- Viewing subscription history.
+- Viewing payment records.
+- Suspending businesses.
+- Reactivating businesses.
+- Reviewing support complaints.
+- Viewing platform activity.
+- Managing plans.
+- Configuring Flutterwave.
+- Exporting reports.
+- Managing announcements.
+- Monitoring system performance.
+
+Administrative access to business information must be permission-controlled and audited.
+
+Never silently alter business financial records.
+
+---
+
+# PART 25: FLUTTERWAVE SUPER ADMIN SETTINGS
+
+Create a dedicated Flutterwave configuration interface.
+
+Allow the Super Admin to manage:
+- Public key.
+- Secret key.
+- Encryption key, if applicable.
+- Webhook secret or verification configuration.
+- Payment environment.
+- Supported currency.
+- Payment configuration status.
+
+Provide secure key storage and key rotation.
+
+Never display the full secret key after it has been saved.
+
+Allow Super Admin to test the connection using the provider's supported verification mechanism without creating fake production transactions.
+
+Maintain separate payment environments for development and production.
+
+---
+
+# PART 26: SUBSCRIPTION MONITORING AND RECONCILIATION
+
+Provide a detailed subscription register.
+
+Fields:
+- Business owner.
+- Business name.
+- Subscription ID.
+- Selected plan.
+- Amount paid.
+- Payment reference.
+- Payment date.
+- Activation date.
+- Expiry date.
+- Duration.
+- Payment status.
+- Renewal status.
+
+Filters:
+- Active subscriptions.
+- Monthly plans.
+- Annual plans.
+- Expired subscriptions.
+- Pending payments.
+- Failed payments.
+- Cancelled subscriptions.
+
+Allow export to Excel and CSV.
+
+Create a payment reconciliation system comparing Flutterwave transactions with subscription records.
+
+Never count the same payment twice.
+
+---
+
+# PART 27: NOTIFICATIONS AND REMINDERS
+
+Integrate Firebase Cloud Messaging or an equivalent production push-notification service.
+
+Business-owner notifications:
+- Subscription payment success.
+- Subscription activation.
+- Renewal confirmation.
+- Expiry reminders.
+- Expiration.
+- Receipt generation.
+- Upload errors.
+- Storage warnings.
+- New announcements.
+- Support responses.
+
+Super Admin notifications:
+- New registration.
+- New subscription.
+- Successful subscription payment.
+- Failed payment.
+- Subscription expiry.
+- Unusual account activity.
+- Support ticket.
+- System error.
+- Storage or service alerts.
+
+Provide notification preferences.
+
+Only issue payment-success notifications after backend verification.
+
+---
+
+# PART 28: PLATFORM ANNOUNCEMENTS
+
+Allow 1803 CONSULT to publish platform announcements.
+
+Examples:
+- New application features.
+- Subscription changes.
+- Scheduled maintenance.
+- Security updates.
+- Service interruptions.
+- Important user instructions.
+
+Display announcements within the Android application.
+
+Allow the Super Admin to:
+- Create announcements.
+- Edit announcements.
+- Schedule announcements.
+- Publish immediately.
+- Archive announcements.
+- Target all users or selected user groups.
+
+---
+
+# PART 29: CUSTOMER SUPPORT AND HELP CENTRE
+
+Create an in-app support system.
+
+Business owners can:
+- Submit complaints.
+- Report technical problems.
+- Ask payment questions.
+- Request account assistance.
+- Attach screenshots.
+- View support tickets.
+- Track ticket status.
+
+Super Admin can:
+- Review tickets.
+- Respond to users.
+- Assign ticket status.
+- Mark issues resolved.
+- Maintain support history.
+
+Include:
+- FAQs.
+- User guides.
+- Subscription instructions.
+- Receipt-generation instructions.
+- Contact information.
+
+---
+
+# PART 30: SECURITY, PRIVACY AND DATA PROTECTION
+
+Implement enterprise-grade security.
+
+Requirements:
+- Secure authentication.
+- Email verification.
+- Password reset.
+- Multi-factor authentication where supported.
+- Role-based access control.
+- Row-Level Security.
+- Tenant-level isolation.
+- Secure API communication.
+- HTTPS.
+- Server-side validation.
+- Rate limiting.
+- Session management.
+- Encrypted secrets.
+- Secure cloud file storage.
+- Audit logging.
+- Database backups.
+- Data recovery.
+
+Comply with applicable Nigerian data protection requirements, including the Nigeria Data Protection Act 2023.
+
+Provide:
+- Privacy policy.
+- Terms of service.
+- Subscription terms.
+- Refund policy.
+- Data retention policy.
+- Account deletion request process.
+
+Do not expose customer bank details through public QR verification.
+
+---
+
+# PART 31: RECEIPT VERIFICATION AND FINANCIAL INTEGRITY
+
+Implement separate statuses:
+
+- Pending Verification.
+- Verified.
+- Rejected.
+- Reversed.
+- Cancelled.
+
+OCR extraction is not proof of funds received.
+
+Require authorised human verification against appropriate financial records before marking a payment verified.
+
+Maintain an audit trail for:
+- Original uploaded document.
+- Extracted data.
+- Manual corrections.
+- Issued receipt.
+- Verification decisions.
+- Receipt amendments.
+- Cancellation.
+- Reversal.
+
+Do not silently rewrite an issued receipt.
+
+When an issued receipt requires correction, preserve the original and generate a properly documented amended version.
+
+---
+
+# PART 32: APPLICATION NAVIGATION
+
+## BUSINESS OWNER AND STAFF APP
+
+Main navigation:
+
+1. Home.
+2. Generate Receipt.
+3. All Receipts.
+4. Customers.
+5. Transactions.
+6. Analytics.
+7. Reports.
+8. Templates.
+9. Staff Management.
+10. Subscription.
+11. Business Profile.
+12. Cloud Storage.
+13. Notifications.
+14. Help and Support.
+15. Settings.
+
+Use role-based navigation.
+
+## SUPER ADMIN PORTAL
+
+Main navigation:
+
+1. Platform Dashboard.
+2. Business Owners.
+3. Subscriptions.
+4. Subscription Payments.
+5. Revenue Analytics.
+6. Flutterwave Settings.
+7. Platform Announcements.
+8. Support Management.
+9. Platform Reports.
+10. Audit Logs.
+11. Storage Monitoring.
+12. Security and Settings.
+
+---
+
+# PART 33: ANDROID TECHNOLOGY AND DEVELOPMENT ARCHITECTURE
+
+Build a native-quality Android application.
+
+Preferred Android stack:
+
+- Kotlin.
+- Jetpack Compose.
+- Material 3.
+- MVVM.
+- Android CameraX.
+- Android Photo Picker.
+- Android Share Sheet.
+- Firebase Cloud Messaging.
+- Secure local data storage.
+
+Flutter is acceptable if it provides reliable Android performance, maintainability and all required native capabilities.
+
+Backend:
+- Supabase or equivalent production infrastructure.
+- PostgreSQL.
+- Secure authentication.
+- Backend APIs.
+- Row-Level Security.
+- Secure cloud storage.
+
+OCR:
+- Google Cloud Document AI.
+- Google ML Kit where appropriate.
+- Other suitable production OCR services.
+
+Payment gateway:
+- Flutterwave.
+
+Image rendering:
+- High-resolution PNG/JPEG generation.
+- Reliable font rendering.
+- Dynamic landscape layouts.
+- Server-side or secure local image rendering.
+
+Hosting:
+- Production cloud infrastructure.
+- HTTPS.
+- Monitoring.
+- Automated backups.
+
+Use a modular, maintainable architecture.
+
+Never put payment gateway secret keys, AI provider keys or database service-role keys in the Android application.
+
+---
+
+# PART 34: DATABASE STRUCTURE
+
+Create relational database tables for:
+
+1. Platform administrators.
+2. Business owners.
+3. Businesses.
+4. Business profiles.
+5. Business branding.
+6. Staff accounts.
+7. Roles and permissions.
+8. Subscription plans.
+9. Subscriptions.
+10. Subscription payments.
+11. Customers.
+12. Products and services.
+13. Uploaded bank documents.
+14. Extracted transaction information.
+15. Payment records.
+16. Receipt records.
+17. Receipt templates.
+18. Generated receipt images.
+19. Receipt verification.
+20. Notifications.
+21. Announcements.
+22. Support tickets.
+23. Audit logs.
+24. Storage records.
+25. Application settings.
+
+Implement:
+- Referential integrity.
+- Unique identifiers.
+- Transaction-safe numbering.
+- Tenant isolation.
+- Row-Level Security.
+- Database indexing.
+- Automated backups.
+- Data retention policies.
+
+---
+
+# PART 35: APPLICATION PERFORMANCE AND USABILITY
+
+Optimise the Android application for Nigerian mobile users.
+
+Requirements:
+- Fast startup.
+- Low data consumption.
+- Efficient image processing.
+- Smooth navigation.
+- Responsive design.
+- Support for common Android screen sizes.
+- Reliable camera integration.
+- Landscape receipt preview.
+- Reliable image downloads.
+- Native WhatsApp sharing.
+- Secure offline drafts.
+- Efficient background synchronisation.
+
+Test on low-, mid- and high-range Android devices.
+
+Handle slow internet connections and interrupted uploads gracefully.
+
+---
+
+# PART 36: TESTING AND QUALITY ASSURANCE
+
+Conduct real end-to-end tests before production launch.
+
+## BUSINESS REGISTRATION TESTS
+
+- Register new owner.
+- Verify email.
+- Complete business profile.
+- Upload logo.
+- Extract brand colours.
+- Select subscription.
+- Complete payment.
+- Activate subscription.
+
+## RECEIPT TESTS
+
+- Upload JPG.
+- Upload PNG.
+- Upload PDF.
+- Capture bank receipt using camera.
+- Extract transaction data.
+- Correct OCR errors.
+- Enter customer name.
+- Enter payment purpose.
+- Generate landscape PNG.
+- Generate JPEG.
+- Preview receipt.
+- Download receipt.
+- Share via WhatsApp.
+- Print receipt.
+- Verify QR code.
+
+## MULTI-BUSINESS TESTS
+
+- Create independent business accounts.
+- Confirm tenant isolation.
+- Confirm different logos.
+- Confirm different colour schemes.
+- Confirm independent numbering.
+- Confirm private customer records.
+- Confirm separate analytics.
+- Confirm staff permissions.
+
+## SUBSCRIPTION TESTS
+
+- Monthly subscription.
+- Annual subscription.
+- Successful payment.
+- Failed payment.
+- Duplicate webhook.
+- Immediate activation.
+- Early renewal.
+- Expiration.
+- Renewal after expiry.
+- Subscription suspension.
+
+## SUPER ADMIN TESTS
+
+- Secure login.
+- Business-owner monitoring.
+- Subscription register.
+- Revenue calculations.
+- Flutterwave configuration.
+- Payment reconciliation.
+- Account suspension.
+- Account reactivation.
+- Reports and exports.
+- Audit logs.
+
+## SECURITY TESTS
+
+- Prevent unauthorised access.
+- Prevent cross-business data access.
+- Protect secret API keys.
+- Prevent subscription manipulation.
+- Prevent duplicate payment activation.
+- Prevent duplicate receipt numbering.
+- Protect uploaded bank documents.
+- Test backup and restoration.
+
+Use real provider sandbox environments only for development testing. Never mix sandbox transactions with production financial records.
+
+---
+
+# PART 37: PRODUCTION DEPLOYMENT
+
+Deliver a fully functional live Android application and web administration portal.
+
+Required deliverables:
+
+1. Android APK.
+2. Android AAB for Google Play.
+3. Production backend.
+4. Production PostgreSQL database.
+5. Secure Super Admin web portal.
+6. Business-owner Android interface.
+7. Flutterwave integration.
+8. OCR integration.
+9. Landscape receipt image generator.
+10. Multiple receipt templates.
+11. Business logo and colour management.
+12. Customer management.
+13. Business analytics.
+14. Financial reports.
+15. QR verification.
+16. WhatsApp sharing.
+17. Email integration.
+18. Cloud backup.
+19. Offline drafts and synchronisation.
+20. Staff management.
+21. Subscription management.
+22. Push notifications.
+23. Customer support.
+24. Audit logs.
+25. Application source code.
+26. Technical documentation.
+27. Deployment report.
+28. Privacy policy and terms.
+
+Provide a real production URL for the Super Admin portal.
+
+Prepare Google Play store assets and listing information.
+
+Do not claim Google Play publication until the application has actually passed the required publishing process.
+
+---
+
+# PART 38: FINAL BUSINESS ACCEPTANCE CRITERIA
+
+The application is considered complete only when all of the following work:
+
+- 1803Receipts installs on Android.
+- The launcher icon clearly displays 1803R.
+- New business owners can register independently.
+- Business owners can upload their logos.
+- Brand colours are automatically extracted.
+- Business-specific branding works.
+- Multiple receipt templates work.
+- Business owners can upload bank transaction documents.
+- OCR extracts available information.
+- Customers and payment purposes can be entered.
+- Landscape PNG receipts generate correctly.
+- JPEG export works.
+- QR verification works.
+- Receipts can be shared.
+- Customer records persist.
+- Financial analytics use real data.
+- Cloud backups work.
+- Offline drafts synchronise.
+- Staff permissions work.
+- Monthly subscription payments work.
+- Annual subscription payments work.
+- Flutterwave verifies payments.
+- Subscriptions activate immediately after verification.
+- Expired subscriptions are restricted appropriately.
+- Super Admin monitors actual subscription revenue.
+- Business accounts remain isolated.
+- Audit logs work.
+- No demo accounts or fake transactions exist in production.
+
+---
+
+# FINAL DEVELOPMENT COMMAND
+
+Build 1803Receipts as a complete, scalable, secure and commercially viable Android SaaS platform owned by 1803 CONSULT.
+
+The application must achieve four primary business objectives:
+
+**OBJECTIVE 1 – PROFESSIONAL RECEIPT GENERATION**
+
+Enable Nigerian businesses to upload bank transaction receipts, automatically extract transaction information, enter the customer name and payment purpose, and generate beautiful landscape business payment receipts in PNG and JPEG formats.
+
+**OBJECTIVE 2 – BUSINESS MANAGEMENT**
+
+Give every business owner an independent digital workspace for customers, receipts, transactions, financial analytics, staff, cloud backups and reporting.
+
+**OBJECTIVE 3 – RECURRING PLATFORM REVENUE**
+
+Generate recurring revenue for 1803 CONSULT through:
+- Monthly subscription: ₦1,500.
+- Annual subscription: ₦18,000.
+
+Use Flutterwave for genuine payment processing and automatically activate subscriptions immediately after verified successful payment.
+
+**OBJECTIVE 4 – CENTRAL PLATFORM CONTROL**
+
+Give 1803 CONSULT complete administrative oversight of:
+- Registered business owners.
+- Business contact information.
+- Subscription plans.
+- Subscription amounts.
+- Payment history.
+- Subscription duration.
+- Expiry dates.
+- Active and expired accounts.
+- Total subscription revenue.
+- Platform performance.
+- Customer support.
+- Application security.
+
+**BUILD, CONNECT, TEST AND DEPLOY THE COMPLETE APPLICATION.**
+
+Do not deliver only a UI design.
+
+Do not deliver a frontend prototype.
+
+Do not leave critical functions simulated.
+
+Do not create demo accounts or sample business records.
+
+The final application must be live, secure, fully operational and ready for genuine Nigerian business owners to register, subscribe and generate real business receipts.
+
+1803Receipts must be built as a long-term commercial product, with 1803 CONSULT retaining ownership and administrative control of the platform, source code, database and subscription infrastructure.

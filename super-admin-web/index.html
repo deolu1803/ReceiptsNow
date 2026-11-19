@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1803 CONSULT — 1803Receipts Super Admin Web Portal</title>
+  <style>
+    :root {
+      --navy: #0B203B;
+      --navy-dark: #061326;
+      --emerald: #047857;
+      --gold: #C89B3C;
+      --crimson: #B91C1C;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --ink: #0F172A;
+      --muted: #475569;
+      --pill-bg: #E2E8F0;
+      --gridline: #EEF2F6;
+      --chart-line: #0B203B;
+      --chart-bar-empty: #E2E8F0;
+      --chart-bar-active: #047857;
+      --header-bg: #DCE6F4;
+      --header-ink: #061326;
+      --header-sub: #334155;
+      --crest-bg: #FFFFFF;
+    }
+    [data-theme="dark"] {
+      --navy: #7FB3FF;
+      --navy-dark: #061326;
+      --emerald: #10B981;
+      --gold: #C89B3C;
+      --crimson: #F87171;
+      --bg: #08111E;
+      --surface: #0E1B2E;
+      --border: #243754;
+      --ink: #F1F5F9;
+      --muted: #94A3B8;
+      --pill-bg: #17273F;
+      --gridline: #1E293B;
+      --chart-line: #7FB3FF;
+      --chart-bar-empty: #1E293B;
+      --chart-bar-active: #10B981;
+      --header-bg: #17365D;
+      --header-ink: #E2ECFF;
+      --header-sub: #CBD5E1;
+      --crest-bg: #061326;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); transition: background-color 0.2s ease, color 0.2s ease; }
+    header { background: var(--header-bg); color: var(--header-ink); padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 3px solid var(--gold); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .crest { width: 42px; height: 42px; border-radius: 10px; background: var(--crest-bg); border: 2px solid var(--gold); color: var(--navy); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+    main { max-width: 1200px; margin: 24px auto; padding: 0 16px; display: grid; gap: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .kpi-val { font-size: 26px; font-weight: 800; color: var(--navy); margin: 6px 0 2px; }
+    .kpi-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    button { background: var(--navy); color: var(--bg); border: none; border-radius: 10px; padding: 10px 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
+    button.emerald { background: var(--emerald); color: #fff; }
+    button.crimson { background: var(--crimson); color: #fff; }
+    button.outline { background: transparent; color: var(--navy); border: 1px solid var(--border); }
+    input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 10px; font-size: 14px; margin-top: 4px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--pill-bg); color: var(--ink); }
+    .pill.active { background: #D1FAE5; color: #065F46; }
+    .pill.suspended { background: #FEE2E2; color: #991B1B; }
+    [data-theme="dark"] .pill.active { background: #064E3B; color: #D1FAE5; }
+    [data-theme="dark"] .pill.suspended { background: #5C1515; color: #FEE2E2; }
+    .hidden { display: none !important; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(6, 19, 38, 0.72); display: grid; place-items: center; padding: 16px; z-index: 50; }
+    .modal-card { background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: 100%; padding: 20px; max-height: 90vh; overflow-y: auto; }
+    .chart-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .chart-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stat-chip { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; font-size: 12px; color: var(--muted); }
+    .stat-chip strong { color: var(--navy); font-weight: 800; margin-left: 4px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .legend-line { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+    .chart-wrap { position: relative; width: 100%; min-height: 300px; }
+    .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+    .chart-tooltip { position: absolute; pointer-events: none; background: var(--navy-dark); color: #fff; border: 1px solid rgba(200, 155, 60, 0.55); border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.45; box-shadow: 0 10px 25px rgba(6, 19, 38, 0.25); z-index: 20; min-width: 190px; opacity: 0; transition: opacity 0.12s ease; }
+    .chart-tooltip .tt-date { font-weight: 800; color: var(--gold); margin-bottom: 4px; }
+    .chart-empty { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    .axis path, .axis line { stroke: var(--border); }
+    .axis text { fill: var(--muted); font-size: 11px; }
+    .gridline line { stroke: var(--gridline); stroke-dasharray: 3 3; }
+    .gridline path { stroke: none; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="crest">1803R</div>
+      <div>
+        <div style="font-weight:800;font-size:18px;">1803 CONSULT — Super Admin Portal</div>
+        <div style="font-size:12px;color:var(--header-sub);">1803Receipts SaaS Platform Control Center (Bank Transfer Verification)</div>
+      </div>
+    </div>
+    <div class="row">
+      <button id="themeToggleBtn" class="outline" style="color:var(--header-ink);border-color:var(--border);">Dark Mode</button>
+      <span id="adminUserLabel" style="font-size:13px;color:var(--navy);font-weight:600;">Signed Out</span>
+      <button id="signInBtn" class="emerald">Sign in with Google (info.1803consult@gmail.com)</button>
+      <button id="signOutBtn" class="outline hidden" style="color:var(--header-ink);border-color:var(--border);">Sign Out</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="configCard" class="card">
+      <h3 style="margin-top:0;">Firebase Web Connection</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        Pre-bound to project <strong>gen-lang-client-0777428447</strong> and Firestore database
+        <code>ai-studio-android-1803rece-28abc08c-3d25-4b25-a94f-ec5c1f083b93</code>.
+        Enter your Firebase Web App API Key &amp; App ID from Firebase Console (saved locally in browser).
+      </p>
+      <div class="grid">
+        <div>
+          <label>Firebase Web API Key <input id="cfgApiKey" placeholder="AIza..." /></label>
+        </div>
+        <div>
+          <label>Firebase Web App ID <input id="cfgAppId" placeholder="1:450437613856:web:..." /></label>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button id="saveCfgBtn">Connect Firebase Web SDK</button>
+        <span id="statusMsg" style="font-size:13px;color:var(--muted);"></span>
+      </div>
+    </section>
+
+    <section id="portalBody" class="hidden" style="display:grid;gap:20px;">
+      <div class="grid">
+        <div class="card"><div class="kpi-label">Registered Businesses</div><div id="kpiBiz" class="kpi-val">0</div></div>
+        <div class="card"><div class="kpi-label">Active Subscriptions</div><div id="kpiActive" class="kpi-val" style="color:var(--emerald);">0</div></div>
+        <div class="card"><div class="kpi-label">MRR / ARR</div><div id="kpiMrrArr" class="kpi-val" style="color:var(--emerald);">₦0 / ₦0</div></div>
+        <div class="card"><div class="kpi-label">Verified SaaS Revenue</div><div id="kpiRev" class="kpi-val">₦0</div></div>
+        <div class="card"><div class="kpi-label">Pending Transfers</div><div id="kpiPendingPay" class="kpi-val" style="color:var(--gold);">0</div></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div>
+            <h3 style="margin:0;">Daily Subscription Revenue Trends (Last 30 Days)</h3>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Real-time verified bank transfer revenue in NGN &bull; Africa/Lagos (WAT)</div>
+          </div>
+          <div class="chart-stats">
+            <div class="stat-chip">30-Day Revenue<strong id="chartTotal30d">₦0</strong></div>
+            <div class="stat-chip">Daily Avg<strong id="chartAvg30d">₦0</strong></div>
+            <div class="stat-chip">Peak Day<strong id="chartPeak30d">₦0</strong></div>
+            <div class="stat-chip">Verified Txns<strong id="chartCount30d">0</strong></div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--emerald);"></span>Verified Daily Revenue</span>
+          <span class="legend-item"><span class="legend-line" style="background:var(--chart-line);"></span>Revenue Trend</span>
+          <span class="legend-item"><span class="legend-line" style="background:var(--gold);border-top:2px dashed var(--gold);height:0;"></span>7-Day Moving Avg</span>
+        </div>
+        <div id="revenueChartWrap" class="chart-wrap">
+          <div id="revenueTooltip" class="chart-tooltip"></div>
+        </div>
+        <div id="revenueChartEmpty" class="chart-empty hidden"></div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <h3 style="margin:0;">Dynamic Subscription Plans &amp; Entitlements</h3>
+            <div id="planCountsRow" style="font-size:12px;color:var(--muted);margin-top:4px;">Fixed Launch Pricing: Monthly ₦1,500 • Annual ₦18,000</div>
+          </div>
+          <div class="row">
+            <button id="seedLaunchPlansBtn" class="outline">Seed Default Launch Plans</button>
+            <button id="createPlanBtn" class="emerald">+ New Subscription Plan</button>
+            <button id="exportSubsCsvBtn" class="outline">Export Subscriptions CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead>
+              <tr><th>Plan &amp; Code</th><th>Price (Kobo / NGN)</th><th>Billing Cycle</th><th>Quotas &amp; Storage</th><th>Status &amp; Subscribers</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="plansTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Subscriber Bank Transfer Receipts (Click "Verified" to Activate)</h3>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead>
+              <tr><th>Business &amp; Owner</th><th>Plan &amp; Amount</th><th>Transfer Details</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="paymentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Quota &amp; Cloud Storage Monitor (Non-Destructive Enforcement)</h3>
+          <button id="runExpirySweepBtn" class="outline">Check Expired &amp; Grace Cycles</button>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead>
+              <tr><th>Business</th><th>Plan &amp; Lifecycle</th><th>Receipt Quota</th><th>OCR Quota</th><th>Storage Usage</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="quotasTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px;">Recent Subscription Invoices</h3>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Invoice #</th><th>Business</th><th>Plan</th><th>Amount</th><th>Status</th><th>Reference</th></tr>
+            </thead>
+            <tbody id="invoicesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px;">Subscription Audit Log &amp; Plan Change History</h3>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Event / Change</th><th>Business</th><th>Actor</th><th>Previous → New</th><th>Details</th></tr>
+            </thead>
+            <tbody id="auditEventsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Central Pricing, Grace Period &amp; Bank Transfer Settings</h3>
+        <div class="grid">
+          <label>Monthly Price (NGN) <input id="setMonthly" type="number" /></label>
+          <label>Annual Price (NGN) <input id="setAnnual" type="number" /></label>
+          <label>Default Storage (MB) <input id="setStorage" type="number" /></label>
+          <label>Grace Period (Days) <input id="setGraceDays" type="number" value="7" /></label>
+          <label>Enable Proration <select id="setProration"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+          <label>Default Quota Rollover <select id="setRollover"><option value="false">Expire at Reset</option><option value="true">Roll Over Unused</option></select></label>
+          <label>Official Bank Account Name <input id="setBankAccName" value="1803 CONSULT" /></label>
+          <label>Official Account Number <input id="setBankAccNum" value="3001823009" /></label>
+          <label>Official Bank Name <input id="setBankName" value="KUDA" /></label>
+          <label>Notification Email <input id="setNotifEmail" value="info.1803consult@gmail.com" /></label>
+          <label>Optional Email Relay Webhook URL
+            <input id="setEmailWebhook" placeholder="https://script.google.com/macros/s/.../exec" />
+            <small style="display:block;color:var(--muted);font-weight:400;margin-top:4px;">Use your deployed Apps Script <code>/exec</code> URL (Who has access: Anyone) or public Cloud Function URL.</small>
+          </label>
+          <label>Support Email <input id="setSupportEmail" value="info.1803consult@gmail.com" /></label>
+        </div>
+        <div class="row" style="margin-top:14px;">
+          <button id="saveSettingsBtn" class="emerald">Save Global Platform Settings</button>
+          <button id="testWebhookBtn" class="outline">Test Email Relay</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Business Owners &amp; Workspaces</h3>
+          <button id="exportBizCsvBtn" class="outline">Export Businesses CSV</button>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px;">
+          <table>
+            <thead>
+              <tr><th>Business</th><th>Owner</th><th>Subscription</th><th>Account</th><th>Receipts</th><th>Action</th></tr>
+            </thead>
+            <tbody id="bizTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Publish Platform Announcement</h3>
+        <div class="grid">
+          <label>Title <input id="annTitle" /></label>
+          <label>Category <select id="annCat"><option>GENERAL</option><option>MAINTENANCE</option><option>BILLING</option><option>FEATURE</option></select></label>
+        </div>
+        <label>Message <textarea id="annMsg" rows="3"></textarea></label>
+        <div style="margin-top:12px;"><button id="publishAnnBtn">Publish to All Businesses</button></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Support Tickets</h3>
+        <div id="ticketsList" style="display:grid;gap:10px;"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="planModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="row" style="justify-content:space-between;">
+        <h3 id="planModalTitle" style="margin:0;">Create / Edit Subscription Plan</h3>
+        <button id="closePlanModalBtn" class="outline">Close</button>
+      </div>
+      <input type="hidden" id="pmPlanId" />
+      <label>Plan Name <input id="pmName" placeholder="e.g. Growth Plan" /></label>
+      <label>Unique Plan Code <input id="pmCode" placeholder="e.g. GROWTH_MONTHLY" /></label>
+      <label>Description <textarea id="pmDesc" rows="2"></textarea></label>
+      <div class="grid">
+        <label>Price (NGN) <input id="pmPriceNgn" type="number" step="0.01" /></label>
+        <label>Currency <input id="pmCurrency" value="NGN" /></label>
+        <label>Billing Frequency
+          <select id="pmFreq">
+            <option value="MONTHLY">MONTHLY</option>
+            <option value="QUARTERLY">QUARTERLY</option>
+            <option value="BIANNUAL">BIANNUAL</option>
+            <option value="ANNUAL">ANNUAL</option>
+            <option value="CUSTOM">CUSTOM</option>
+          </select>
+        </label>
+        <label>Interval (Days) <input id="pmIntervalDays" type="number" value="30" /></label>
+        <label>Receipt Quota (-1 = unlimited) <input id="pmMaxReceipts" type="number" value="250" /></label>
+        <label>OCR Quota (-1 = unlimited) <input id="pmMaxOcr" type="number" value="250" /></label>
+        <label>Storage Limit (MB, -1 = unlim) <input id="pmStorageMb" type="number" value="1024" /></label>
+        <label>Max Staff (-1 = unlimited) <input id="pmMaxStaff" type="number" value="5" /></label>
+        <label>Max Customers (-1 = unlim) <input id="pmMaxCustomers" type="number" value="-1" /></label>
+        <label>Trial Days <input id="pmTrialDays" type="number" value="0" /></label>
+        <label>Overage / Extra Receipt (NGN) <input id="pmOverageNgn" type="number" value="0" /></label>
+        <label>Sort Order <input id="pmSortOrder" type="number" value="10" /></label>
+      </div>
+      <div class="grid" style="margin-top:8px;">
+        <label>Rollover Unused Quotas <select id="pmRollover"><option value="false">No</option><option value="true">Yes</option></select></label>
+        <label>Warning Thresholds (%) <input id="pmWarnThresholds" value="50,75,90,100" /></label>
+        <label>Templates (comma-separated) <input id="pmTemplates" value="STANDARD,PREMIUM_CORPORATE,COMPACT" /></label>
+        <label>Priority Support <select id="pmPrioritySupport"><option value="false">Standard</option><option value="true">Priority</option></select></label>
+        <label>Analytics &amp; Export <select id="pmAnalytics"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+        <label>QR Verification <select id="pmQrVerify"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+        <label>WhatsApp Share <select id="pmWhatsapp"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+        <label>Email Share <select id="pmEmailShare"><option value="true">Enabled</option><option value="false">Disabled</option></select></label>
+        <label>Status <select id="pmStatus"><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option><option value="ARCHIVED">ARCHIVED</option></select></label>
+        <label>Visible to Users <select id="pmVisible"><option value="true">Visible</option><option value="false">Hidden</option></select></label>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <button id="savePlanModalBtn" class="emerald">Save Plan &amp; Publish</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="overrideModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="row" style="justify-content:space-between;">
+        <h3 id="overrideModalTitle" style="margin:0;">Custom Business Allowances</h3>
+        <button id="closeOverrideModalBtn" class="outline">Close</button>
+      </div>
+      <input type="hidden" id="ovBizId" />
+      <p id="ovBizName" style="font-size:13px;color:var(--muted);"></p>
+      <div class="grid">
+        <label>Custom Receipt Quota (blank = plan) <input id="ovMaxReceipts" type="number" /></label>
+        <label>Bonus Receipts This Cycle <input id="ovBonusReceipts" type="number" value="0" /></label>
+        <label>Custom OCR Quota (blank = plan) <input id="ovMaxOcr" type="number" /></label>
+        <label>Custom Storage MB (blank = plan) <input id="ovStorageMb" type="number" /></label>
+        <label>Bonus Storage MB <input id="ovBonusStorageMb" type="number" value="0" /></label>
+        <label>Custom Max Staff (blank = plan) <input id="ovMaxStaff" type="number" /></label>
+      </div>
+      <label>Override Notes / Reason <textarea id="ovReason" rows="2"></textarea></label>
+      <div class="row" style="margin-top:14px;">
+        <button id="saveOverrideBtn" class="emerald">Apply Custom Override</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="receiptModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="row" style="justify-content:space-between;">
+        <h3 id="modalTitle" style="margin:0;">Uploaded Transfer Receipt</h3>
+        <button id="closeModalBtn" class="outline">Close</button>
+      </div>
+      <p id="modalMeta" style="font-size:13px;color:var(--muted);"></p>
+      <img id="modalImg" alt="Uploaded Payment Receipt" style="width:100%;max-height:460px;object-fit:contain;border:1px solid var(--border);border-radius:10px;" />
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, writeBatch, onSnapshot, setDoc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const PROJECT_ID = "gen-lang-client-0777428447";
+    const DATABASE_ID = "ai-studio-android-1803rece-28abc08c-3d25-4b25-a94f-ec5c1f083b93";
+    const SUPER_ADMIN_EMAIL = "info.1803consult@gmail.com";
+
+    const cfgKeyEl = document.getElementById("cfgApiKey");
+    const cfgAppEl = document.getElementById("cfgAppId");
+    const statusMsg = document.getElementById("statusMsg");
+    const signInBtn = document.getElementById("signInBtn");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const portalBody = document.getElementById("portalBody");
+    const adminUserLabel = document.getElementById("adminUserLabel");
+    const receiptModal = document.getElementById("receiptModal");
+    const planModal = document.getElementById("planModal");
+    const overrideModal = document.getElementById("overrideModal");
+
+    document.getElementById("closeModalBtn").onclick = () => receiptModal.classList.add("hidden");
+    document.getElementById("closePlanModalBtn").onclick = () => planModal.classList.add("hidden");
+    document.getElementById("closeOverrideModalBtn").onclick = () => overrideModal.classList.add("hidden");
+
+    cfgKeyEl.value = localStorage.getItem("r1803_web_api_key") || "";
+    cfgAppEl.value = localStorage.getItem("r1803_web_app_id") || "";
+
+    const ALLOWED_RECEIPT_MIMES = new Set(["image/jpeg", "image/png", "image/webp"]);
+    let auth = null;
+    let db = null;
+    let businessesCache = [];
+    let paymentsCache = [];
+    let plansCache = [];
+    let entitlementsCache = [];
+    let subscriptionsCache = [];
+    let quotasCache = [];
+    let storageCache = [];
+    let customOverridesCache = [];
+    let invoicesCache = [];
+    let eventsCache = [];
+    let snapshotUnsubs = [];
+    const WAT_OFFSET_MS = 3600 * 1000;
+
+    function escapeHtml(val) {
+      return String(val ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function clearSubscriptions() {
+      snapshotUnsubs.forEach(unsub => {
+        try { unsub(); } catch (_) {}
+      });
+      snapshotUnsubs = [];
+    }
+
+    function connectFirebase() {
+      const apiKey = cfgKeyEl.value.trim();
+      const appId = cfgAppEl.value.trim();
+      if (!apiKey || !appId) {
+        statusMsg.textContent = "Enter Firebase Web API Key and App ID to initialize.";
+        return;
+      }
+      localStorage.setItem("r1803_web_api_key", apiKey);
+      localStorage.setItem("r1803_web_app_id", appId);
+
+      try {
+        if (!auth) {
+          const app = initializeApp({
+            apiKey,
+            authDomain: `${PROJECT_ID}.firebaseapp.com`,
+            projectId: PROJECT_ID,
+            storageBucket: `${PROJECT_ID}.firebasestorage.app`,
+            messagingSenderId: "450437613856",
+            appId
+          });
+          auth = getAuth(app);
+          db = getFirestore(app, DATABASE_ID);
+          statusMsg.textContent = "Connected to Firebase. Please sign in with info.1803consult@gmail.com.";
+
+          onAuthStateChanged(auth, (user) => {
+            if (!user) {
+              clearSubscriptions();
+              adminUserLabel.textContent = "Signed Out";
+              signInBtn.classList.remove("hidden");
+              signOutBtn.classList.add("hidden");
+              portalBody.classList.add("hidden");
+              return;
+            }
+            if (!user.emailVerified || (user.email || "").toLowerCase() !== SUPER_ADMIN_EMAIL) {
+              clearSubscriptions();
+              adminUserLabel.textContent = `Access Denied (${user.email})`;
+              portalBody.classList.add("hidden");
+              signInBtn.classList.add("hidden");
+              signOutBtn.classList.remove("hidden");
+              statusMsg.textContent = "Only verified info.1803consult@gmail.com may access Super Admin controls.";
+              return;
+            }
+            adminUserLabel.textContent = `Super Admin: ${user.email}`;
+            signInBtn.classList.add("hidden");
+            signOutBtn.classList.remove("hidden");
+            portalBody.classList.remove("hidden");
+            subscribeAdminCollections();
+          });
+        }
+      } catch (err) {
+        statusMsg.textContent = `Firebase initialization failed: ${err.message || err}`;
+      }
+    }
+
+    document.getElementById("saveCfgBtn").onclick = connectFirebase;
+    signInBtn.onclick = async () => {
+      try {
+        if (!auth) connectFirebase();
+        if (!auth) return;
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ login_hint: SUPER_ADMIN_EMAIL });
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        statusMsg.textContent = `Sign-in failed: ${err.message || err}`;
+      }
+    };
+    signOutBtn.onclick = async () => {
+      try {
+        clearSubscriptions();
+        if (auth) await signOut(auth);
+      } catch (err) {
+        statusMsg.textContent = `Sign-out failed: ${err.message || err}`;
+      }
+    };
+
+    async function verifyPaymentAndActivate(payment) {
+      try {
+        const bizRef = doc(db, "businesses", payment.businessId);
+        const bizSnap = await getDoc(bizRef);
+        if (!bizSnap.exists()) {
+          statusMsg.textContent = "Business workspace not found.";
+          return;
+        }
+        const biz = bizSnap.data();
+        const now = Date.now();
+        const matchedPlan = plansCache.find(p =>
+          (payment.planId && p.id === payment.planId) ||
+          (p.planCode || "").toUpperCase() === (payment.planCode || "").toUpperCase()
+        );
+        const matchedEnt = matchedPlan ? (entitlementsCache.find(e => e.id === matchedPlan.id) || {}) : {};
+        const intervalDays = Number(matchedPlan?.intervalDays || (payment.planCode === "ANNUAL" ? 365 : 30));
+        const base = (biz.subscriptionStatus === "ACTIVE" && Number(biz.subscriptionExpiryMillis || 0) > now)
+          ? Number(biz.subscriptionExpiryMillis)
+          : now;
+        const expiryMillis = base + intervalDays * 86400000;
+        const planId = matchedPlan?.id || (payment.planCode === "ANNUAL" ? "plan_annual_18000" : "plan_monthly_1500");
+        const planCode = matchedPlan?.planCode || payment.planCode || "MONTHLY";
+        const planName = matchedPlan?.name || (planCode === "ANNUAL" ? "Annual" : "Monthly");
+        const priceMinor = Number(matchedPlan?.priceMinor || Math.round((Number(payment.amountNgn) || 0) * 100));
+        const maxReceipts = Number(matchedEnt.maxReceiptsPerCycle ?? (planCode === "ANNUAL" ? 3600 : 300));
+        const maxOcr = Number(matchedEnt.maxOcrPerCycle ?? maxReceipts);
+        const storageLimitBytes = Number(matchedEnt.storageLimitBytes ?? 524288000);
+        const rolloverEnabled = Boolean(matchedEnt.rolloverEnabled);
+        const existingSub = subscriptionsCache.find(s => s.id === payment.businessId);
+        const existingQuota = quotasCache.find(q => q.id === `${payment.businessId}_current`);
+        const existingStorage = storageCache.find(s => s.id === payment.businessId);
+        const rolloverCarry = (rolloverEnabled && existingQuota && Number(existingQuota.receiptsAllocated || 0) >= 0)
+          ? Math.max(0, Number(existingQuota.receiptsAllocated || 0) + Number(existingQuota.rolloverReceipts || 0) - Number(existingQuota.receiptsUsed || 0))
+          : 0;
+        const memberUids = Array.isArray(biz.memberUids) && biz.memberUids.length ? biz.memberUids : [biz.ownerUid];
+        const totalPaidMinor = Math.round((Number(payment.amountNgn) || 0) * 100);
+        const invId = `inv_${payment.id}`;
+        const invNum = `INV-${now}`;
+
+        const batch = writeBatch(db);
+        batch.update(doc(db, "subscription_payments", payment.id), {
+          paymentStatus: "VERIFIED",
+          verifiedByUid: auth.currentUser.uid,
+          verifiedByEmail: auth.currentUser.email,
+          verifiedAtMillis: now,
+          cycleStartMillis: now,
+          cycleEndMillis: expiryMillis,
+          invoiceId: invId,
+          rejectionReason: "",
+          updatedAt: serverTimestamp()
+        });
+        batch.update(bizRef, {
+          subscriptionStatus: "ACTIVE",
+          subscriptionPlanCode: planCode,
+          subscriptionPlanId: planId,
+          storageLimitBytes,
+          subscriptionActivatedMillis: now,
+          subscriptionExpiryMillis: expiryMillis,
+          updatedAt: serverTimestamp()
+        });
+        batch.set(doc(db, "business_subscriptions", payment.businessId), {
+          businessId: payment.businessId,
+          ownerUid: biz.ownerUid || "",
+          memberUids,
+          planId,
+          planCode,
+          planNameSnapshot: planName,
+          agreedBillingFrequency: matchedPlan?.billingFrequency || (planCode === "ANNUAL" ? "ANNUAL" : "MONTHLY"),
+          agreedIntervalDays: intervalDays,
+          agreedCurrency: matchedPlan?.currency || "NGN",
+          agreedPriceMinor: priceMinor,
+          agreedEntitlementsSnapshot: matchedEnt || {},
+          status: "ACTIVE",
+          cycleStartMillis: now,
+          cycleEndMillis: expiryMillis,
+          gracePeriodEndMillis: 0,
+          autoRenew: true,
+          cancelAtPeriodEnd: false,
+          creditBalanceMinor: 0,
+          lastPaymentId: payment.id,
+          lastInvoiceId: invId,
+          createdAt: existingSub?.createdAt || serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        batch.set(doc(db, "usage_quotas", `${payment.businessId}_current`), {
+          businessId: payment.businessId,
+          ownerUid: biz.ownerUid || "",
+          memberUids,
+          cycleKey: `cycle_${expiryMillis}`,
+          cycleStartMillis: now,
+          cycleEndMillis: expiryMillis,
+          receiptsAllocated: maxReceipts,
+          receiptsUsed: 0,
+          rolloverReceipts: rolloverCarry,
+          overageReceiptsUsed: 0,
+          ocrAllocated: maxOcr,
+          ocrUsed: 0,
+          warningsSentPct: [],
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        batch.set(doc(db, "storage_usage", payment.businessId), {
+          businessId: payment.businessId,
+          ownerUid: biz.ownerUid || "",
+          memberUids,
+          allocatedBytes: storageLimitBytes,
+          usedBytes: Number(existingStorage?.usedBytes ?? biz.storageUsedBytes ?? 0),
+          limitBehavior: matchedEnt?.storageOverLimitAction || "BLOCK_NEW_UPLOADS",
+          warningThresholdsSent: [],
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        batch.set(doc(db, "subscription_invoices", invId), {
+          invoiceNumber: invNum,
+          businessId: payment.businessId,
+          businessName: payment.businessName || biz.tradingName || "",
+          ownerUid: biz.ownerUid || "",
+          ownerEmail: payment.ownerEmail || biz.ownerEmail || "",
+          subscriptionId: payment.businessId,
+          paymentId: payment.id,
+          planId,
+          planCode,
+          planNameSnapshot: planName,
+          billingFrequencySnapshot: matchedPlan?.billingFrequency || (planCode === "ANNUAL" ? "ANNUAL" : "MONTHLY"),
+          currency: "NGN",
+          subtotalMinor: priceMinor,
+          prorationCreditMinor: Number(payment.prorationCreditMinor || 0),
+          taxMinor: 0,
+          totalMinor: totalPaidMinor,
+          status: "PAID",
+          issuedAtMillis: now,
+          paidAtMillis: now,
+          cycleStartMillis: now,
+          cycleEndMillis: expiryMillis,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        const evtId = `evt_verify_${now}`;
+        batch.set(doc(db, "subscription_events", evtId), {
+          actorUid: auth.currentUser.uid,
+          actorEmail: auth.currentUser.email,
+          actorRole: "SUPER_ADMIN",
+          businessId: payment.businessId,
+          entityType: "business_subscriptions",
+          entityId: payment.businessId,
+          action: "PAYMENT_VERIFIED_ACTIVATED",
+          previousValue: JSON.stringify({ status: biz.subscriptionStatus, plan: biz.subscriptionPlanCode }),
+          newValue: JSON.stringify({ status: "ACTIVE", plan: planCode, priceMinor }),
+          createdAt: serverTimestamp()
+        });
+        const ntfRef = doc(db, "businesses", payment.businessId, "notifications", `ntf_${now}`);
+        batch.set(ntfRef, {
+          businessId: payment.businessId,
+          ownerUid: biz.ownerUid,
+          memberUids,
+          title: `Subscription Verified & Active (${planName})`,
+          body: `Your 1803Receipts ${planName} transfer (Ref: ${payment.txRef}) has been verified.`,
+          category: "SUBSCRIPTION",
+          read: false,
+          createdAt: serverTimestamp()
+        });
+        await batch.commit();
+        statusMsg.textContent = `Verified ${payment.businessName} (${planName}). Subscription, quotas & invoice are now ACTIVE!`;
+      } catch (err) {
+        statusMsg.textContent = `Verification failed: ${err.message || err}`;
+      }
+    }
+
+    function subscribeAdminCollections() {
+      clearSubscriptions();
+      const onSnapErr = (label) => (err) => {
+        statusMsg.textContent = `Firestore ${label} error: ${err.message || err}`;
+      };
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "businesses"), (snap) => {
+        businessesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        document.getElementById("kpiBiz").textContent = businessesCache.length;
+        document.getElementById("kpiActive").textContent = businessesCache.filter(b => b.subscriptionStatus === "ACTIVE").length;
+        const tbody = document.getElementById("bizTableBody");
+        tbody.innerHTML = "";
+        businessesCache.forEach(b => {
+          const tr = document.createElement("tr");
+          const isSuspended = b.accountStatus === "SUSPENDED";
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(b.tradingName || b.registeredName || b.id)}</strong><br><small>${escapeHtml(b.receiptPrefix)}</small></td>
+            <td>${escapeHtml(b.ownerName)}<br><small>${escapeHtml(b.ownerEmail)}</small></td>
+            <td><span class="pill ${b.subscriptionStatus === "ACTIVE" ? "active" : ""}">${escapeHtml(b.subscriptionStatus)}</span></td>
+            <td><span class="pill ${isSuspended ? "suspended" : "active"}">${escapeHtml(b.accountStatus || "ACTIVE")}</span></td>
+            <td>${escapeHtml(b.receiptsCount || 0)}</td>
+            <td><button class="${isSuspended ? "emerald" : "crimson"}">${isSuspended ? "Reactivate" : "Suspend"}</button></td>
+          `;
+          tr.querySelector("button").onclick = async () => {
+            try {
+              await updateDoc(doc(db, "businesses", b.id), {
+                accountStatus: isSuspended ? "ACTIVE" : "SUSPENDED",
+                updatedAt: serverTimestamp()
+              });
+            } catch (err) {
+              statusMsg.textContent = `Account update failed: ${err.message || err}`;
+            }
+          };
+          tbody.appendChild(tr);
+        });
+      }, onSnapErr("businesses")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "subscription_payments"), (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (a.paymentStatus === "PENDING" ? -1 : 1) - (b.paymentStatus === "PENDING" ? -1 : 1));
+        paymentsCache = list;
+        const verified = list.filter(p => p.paymentStatus === "VERIFIED");
+        const pending = list.filter(p => p.paymentStatus === "PENDING");
+        const sum = verified.reduce((acc, p) => acc + (Number(p.amountNgn) || 0), 0);
+        document.getElementById("kpiRev").textContent = `₦${sum.toLocaleString("en-NG")}`;
+        document.getElementById("kpiPendingPay").textContent = pending.length;
+        renderRevenueTrendChart(list);
+
+        const ptbody = document.getElementById("paymentsTableBody");
+        ptbody.innerHTML = "";
+        list.forEach(p => {
+          const tr = document.createElement("tr");
+          const pillCls = p.paymentStatus === "VERIFIED" ? "active" : (p.paymentStatus === "REJECTED" ? "suspended" : "");
+          const mailSt = p.emailNotificationStatus || "QUEUED";
+          const mailCls = mailSt === "SENT" ? "active" : (mailSt === "FAILED" || mailSt === "PENDING_SMTP_CONFIG" ? "suspended" : "");
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(p.businessName || p.businessId)}</strong><br><small>${escapeHtml(p.ownerName)} • ${escapeHtml(p.ownerEmail)}</small></td>
+            <td><strong>${escapeHtml(p.planCode)}</strong><br>₦${Number(p.amountNgn || 0).toLocaleString("en-NG")}</td>
+            <td><code>${escapeHtml(p.txRef)}</code><br><small>Sender: ${escapeHtml(p.senderName || "-")} (${escapeHtml(p.senderBank || "-")})</small></td>
+            <td><span class="pill ${pillCls}">${escapeHtml(p.paymentStatus)}</span><br><small style="color:var(--muted);">Mail: <span class="pill ${mailCls}">${escapeHtml(mailSt)}</span></small></td>
+            <td class="row"></td>
+          `;
+          const actionCell = tr.querySelector("td:last-child");
+          if (p.receiptImageBase64) {
+            const viewBtn = document.createElement("button");
+            viewBtn.className = "outline";
+            viewBtn.textContent = "View Receipt";
+            viewBtn.onclick = () => {
+              document.getElementById("modalTitle").textContent = `Receipt • ${p.txRef}`;
+              document.getElementById("modalMeta").textContent = `${p.businessName} (${p.ownerName} • ${p.ownerEmail}) — ₦${Number(p.amountNgn || 0).toLocaleString("en-NG")}`;
+              const safeMime = ALLOWED_RECEIPT_MIMES.has(p.receiptMimeType) ? p.receiptMimeType : "image/jpeg";
+              document.getElementById("modalImg").src = `data:${safeMime};base64,${p.receiptImageBase64}`;
+              receiptModal.classList.remove("hidden");
+            };
+            actionCell.appendChild(viewBtn);
+          }
+          if (p.paymentStatus !== "VERIFIED") {
+            const verifyBtn = document.createElement("button");
+            verifyBtn.className = "emerald";
+            verifyBtn.textContent = "Verified";
+            verifyBtn.onclick = async () => {
+              verifyBtn.disabled = true;
+              await verifyPaymentAndActivate(p);
+              verifyBtn.disabled = false;
+            };
+            actionCell.appendChild(verifyBtn);
+          }
+          if (p.paymentStatus === "PENDING") {
+            const rejBtn = document.createElement("button");
+            rejBtn.className = "crimson";
+            rejBtn.textContent = "Reject";
+            rejBtn.onclick = async () => {
+              const promptVal = prompt("Reason for rejecting transfer receipt:");
+              if (promptVal === null) return;
+              const reason = promptVal.trim() || "Transfer not found on 1803 CONSULT KUDA account.";
+              try {
+                await updateDoc(doc(db, "subscription_payments", p.id), {
+                  paymentStatus: "REJECTED",
+                  verifiedByUid: auth.currentUser.uid,
+                  verifiedByEmail: auth.currentUser.email,
+                  verifiedAtMillis: Date.now(),
+                  rejectionReason: reason,
+                  updatedAt: serverTimestamp()
+                });
+                statusMsg.textContent = `Payment ${p.txRef} marked REJECTED.`;
+              } catch (err) {
+                statusMsg.textContent = `Reject failed: ${err.message || err}`;
+              }
+            };
+            actionCell.appendChild(rejBtn);
+          }
+          ptbody.appendChild(tr);
+        });
+      }, onSnapErr("subscription_payments")));
+
+      snapshotUnsubs.push(onSnapshot(doc(db, "platform_settings", "global"), (snap) => {
+        const d = snap.exists() ? snap.data() : {};
+        document.getElementById("setMonthly").value = d.monthlyPriceNgn ?? 1500;
+        document.getElementById("setAnnual").value = d.annualPriceNgn ?? 18000;
+        document.getElementById("setStorage").value = d.storageLimitMb ?? 500;
+        document.getElementById("setGraceDays").value = d.gracePeriodDays ?? 7;
+        document.getElementById("setProration").value = String(d.prorationEnabled !== false);
+        document.getElementById("setRollover").value = String(Boolean(d.defaultRolloverEnabled));
+        document.getElementById("setBankAccName").value = d.bankAccountName || "1803 CONSULT";
+        document.getElementById("setBankAccNum").value = d.bankAccountNumber || "3001823009";
+        document.getElementById("setBankName").value = d.bankName || "KUDA";
+        document.getElementById("setNotifEmail").value = d.notificationEmail || SUPER_ADMIN_EMAIL;
+        document.getElementById("setEmailWebhook").value = d.emailNotificationWebhookUrl || "";
+        document.getElementById("setSupportEmail").value = d.supportEmail || SUPER_ADMIN_EMAIL;
+      }, onSnapErr("platform_settings")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "subscription_plans"), (snap) => {
+        plansCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+        renderPlansTable();
+        updateMrrArrKpi();
+      }, onSnapErr("subscription_plans")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "plan_entitlements"), (snap) => {
+        entitlementsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPlansTable();
+      }, onSnapErr("plan_entitlements")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "business_subscriptions"), (snap) => {
+        subscriptionsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPlansTable();
+        renderQuotasTable();
+        updateMrrArrKpi();
+      }, onSnapErr("business_subscriptions")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "usage_quotas"), (snap) => {
+        quotasCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderQuotasTable();
+      }, onSnapErr("usage_quotas")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "storage_usage"), (snap) => {
+        storageCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderQuotasTable();
+      }, onSnapErr("storage_usage")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "custom_business_entitlements"), (snap) => {
+        customOverridesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderQuotasTable();
+      }, onSnapErr("custom_business_entitlements")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "subscription_invoices"), (snap) => {
+        invoicesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => Number(b.issuedAtMillis || 0) - Number(a.issuedAtMillis || 0));
+        const tbody = document.getElementById("invoicesTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        invoicesCache.slice(0, 40).forEach(inv => {
+          const tr = document.createElement("tr");
+          const totalNgn = Number(inv.totalMinor ?? inv.totalPaidMinor ?? 0) / 100;
+          tr.innerHTML = `
+            <td><code>${escapeHtml(inv.invoiceNumber || inv.id)}</code></td>
+            <td>${escapeHtml(inv.businessName || inv.businessId)}</td>
+            <td>${escapeHtml(inv.planNameSnapshot || inv.planCode)}</td>
+            <td>₦${totalNgn.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</td>
+            <td><span class="pill active">${escapeHtml(inv.status || "PAID")}</span></td>
+            <td><code>${escapeHtml(inv.paymentId || "-")}</code></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, onSnapErr("subscription_invoices")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "subscription_events"), (snap) => {
+        eventsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => Number(b.createdAt?.seconds || 0) - Number(a.createdAt?.seconds || 0));
+        const tbody = document.getElementById("auditEventsTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        eventsCache.slice(0, 50).forEach(evt => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(evt.action || evt.eventType)}</strong></td>
+            <td>${escapeHtml(evt.businessId || "PLATFORM")}</td>
+            <td><small>${escapeHtml(evt.actorEmail || evt.actorUid || "-")}</small></td>
+            <td><small>${escapeHtml(evt.previousValue || "-")} → ${escapeHtml(evt.newValue || "-")}</small></td>
+            <td>${escapeHtml(evt.entityType || "")}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, onSnapErr("subscription_events")));
+
+      snapshotUnsubs.push(onSnapshot(collection(db, "support_tickets"), (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const container = document.getElementById("ticketsList");
+        container.innerHTML = "";
+        list.forEach(t => {
+          const div = document.createElement("div");
+          div.className = "card";
+          const mailSt = t.emailNotificationStatus || "QUEUED";
+          const mailCls = mailSt === "SENT" ? "active" : (mailSt === "FAILED" || mailSt === "PENDING_SMTP_CONFIG" ? "suspended" : "");
+          div.innerHTML = `
+            <strong>${escapeHtml(t.subject)}</strong>
+            <span class="pill">${escapeHtml(t.status)}</span>
+            <span class="pill">${escapeHtml(t.category || "TECHNICAL")} • ${escapeHtml(t.source || "HELP_DESK")}</span>
+            <span class="pill ${mailCls}">Mail: ${escapeHtml(mailSt)}</span>
+            <div style="font-size:12px;color:var(--muted);margin:4px 0;">${escapeHtml(t.businessName)} • ${escapeHtml(t.ownerName || "")} (${escapeHtml(t.ownerEmail)})</div>
+            <p style="font-size:13px;margin:6px 0;">${escapeHtml(t.description)}</p>
+            ${t.emailNotificationError ? `<div style="font-size:12px;color:var(--crimson);margin-bottom:6px;">Mail error: ${escapeHtml(t.emailNotificationError)}</div>` : ""}
+            <div class="row">
+              <input placeholder="Write reply..." value="${escapeHtml(t.adminReply)}" style="flex:1;" />
+              <button class="emerald">Resolve &amp; Reply</button>
+            </div>
+          `;
+          div.querySelector("button").onclick = async () => {
+            try {
+              const reply = div.querySelector("input").value.trim();
+              await updateDoc(doc(db, "support_tickets", t.id), {
+                status: "RESOLVED",
+                adminReply: reply,
+                updatedAt: serverTimestamp()
+              });
+              statusMsg.textContent = `Support ticket updated.`;
+            } catch (err) {
+              statusMsg.textContent = `Ticket reply failed: ${err.message || err}`;
+            }
+          };
+          container.appendChild(div);
+        });
+      }, onSnapErr("support_tickets")));
+    }
+
+    function updateMrrArrKpi() {
+      let mrrMinor = 0;
+      const activeSubs = subscriptionsCache.filter(s => s.status === "ACTIVE" || s.status === "GRACE_PERIOD");
+      activeSubs.forEach(sub => {
+        const plan = plansCache.find(p => p.id === sub.planId || p.planCode === sub.planCode);
+        const days = Math.max(1, Number(sub.agreedIntervalDays || plan?.intervalDays || 30));
+        const priceMinor = Number(sub.agreedPriceMinor || plan?.priceMinor || 0);
+        mrrMinor += Math.round((priceMinor * 30) / days);
+      });
+      const arrMinor = mrrMinor * 12;
+      const el = document.getElementById("kpiMrrArr");
+      if (el) {
+        el.textContent = `₦${Math.round(mrrMinor / 100).toLocaleString("en-NG")} / ₦${Math.round(arrMinor / 100).toLocaleString("en-NG")}`;
+      }
+    }
+
+    function openPlanModal(plan = null) {
+      const ent = plan ? (entitlementsCache.find(e => e.id === plan.id) || {}) : {};
+      document.getElementById("planModalTitle").textContent = plan ? `Edit Plan: ${plan.name}` : "Create Subscription Plan";
+      document.getElementById("pmPlanId").value = plan?.id || "";
+      document.getElementById("pmName").value = plan?.name || "";
+      document.getElementById("pmCode").value = plan?.planCode || "";
+      document.getElementById("pmDesc").value = plan?.description || "";
+      document.getElementById("pmPriceNgn").value = plan ? (Number(plan.priceMinor || 0) / 100) : 5000;
+      document.getElementById("pmCurrency").value = plan?.currency || "NGN";
+      document.getElementById("pmFreq").value = plan?.billingFrequency || "MONTHLY";
+      document.getElementById("pmIntervalDays").value = plan?.intervalDays ?? 30;
+      document.getElementById("pmTrialDays").value = plan?.trialDays ?? 0;
+      document.getElementById("pmSortOrder").value = plan?.sortOrder ?? 10;
+      document.getElementById("pmStatus").value = plan?.status || "ACTIVE";
+      document.getElementById("pmVisible").value = String(plan?.visible !== false);
+      document.getElementById("pmMaxReceipts").value = ent.maxReceiptsPerCycle ?? 300;
+      document.getElementById("pmMaxOcr").value = ent.maxOcrPerCycle ?? 300;
+      document.getElementById("pmStorageMb").value = ent.storageLimitBytes === -1 ? -1 : Math.round(Number(ent.storageLimitBytes ?? 524288000) / (1024 * 1024));
+      document.getElementById("pmMaxStaff").value = ent.maxStaffAccounts ?? 5;
+      document.getElementById("pmMaxCustomers").value = ent.maxCustomers ?? -1;
+      document.getElementById("pmOverageNgn").value = Number(ent.overageReceiptPriceMinor || 0) / 100;
+      document.getElementById("pmRollover").value = String(Boolean(ent.rolloverEnabled));
+      const warnList = Array.isArray(ent.warningThresholds) ? ent.warningThresholds.join(",") : (ent.warningThresholds || "50,75,90,100");
+      const tplList = Array.isArray(ent.allowedTemplates) ? ent.allowedTemplates.join(",") : (ent.allowedTemplates || "STANDARD,PREMIUM_CORPORATE,COMPACT");
+      document.getElementById("pmWarnThresholds").value = warnList;
+      document.getElementById("pmTemplates").value = tplList;
+      document.getElementById("pmPrioritySupport").value = String(Boolean(ent.prioritySupport));
+      document.getElementById("pmAnalytics").value = String(ent.reportsExportEnabled !== false);
+      document.getElementById("pmQrVerify").value = String(ent.qrVerificationEnabled !== false);
+      document.getElementById("pmWhatsapp").value = String(ent.whatsappSharingEnabled !== false);
+      document.getElementById("pmEmailShare").value = String(ent.emailSharingEnabled !== false);
+      planModal.classList.remove("hidden");
+    }
+
+    function renderPlansTable() {
+      const tbody = document.getElementById("plansTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      plansCache.forEach(p => {
+        const ent = entitlementsCache.find(e => e.id === p.id) || {};
+        const subCount = subscriptionsCache.filter(s => s.planId === p.id || s.planCode === p.planCode).length;
+        const priceNgn = Number(p.priceMinor || 0) / 100;
+        const storageMb = Number(ent.storageLimitBytes ?? 524288000) < 0
+          ? "Unlimited"
+          : `${Math.round(Number(ent.storageLimitBytes ?? 524288000) / (1024 * 1024))} MB`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(p.name)}</strong><br><code>${escapeHtml(p.planCode)}</code></td>
+          <td>₦${priceNgn.toLocaleString("en-NG")}<br><small>${escapeHtml(p.priceMinor)} kobo</small></td>
+          <td>${escapeHtml(p.billingFrequency)} (${escapeHtml(p.intervalDays)}d)</td>
+          <td>Receipts: ${escapeHtml(ent.maxReceiptsPerCycle ?? "-")}<br><small>OCR: ${escapeHtml(ent.maxOcrPerCycle ?? "-")} • Storage: ${escapeHtml(storageMb)} • Staff: ${escapeHtml(ent.maxStaffAccounts ?? "-")}</small></td>
+          <td><span class="pill ${p.status === "ACTIVE" ? "active" : "suspended"}">${escapeHtml(p.status)}</span><br><small>Subscribers: ${subCount}</small></td>
+          <td class="row"></td>
+        `;
+        const cell = tr.querySelector("td:last-child");
+        const editBtn = document.createElement("button");
+        editBtn.className = "outline";
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => openPlanModal(p);
+        cell.appendChild(editBtn);
+
+        const nextStatus = p.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+        const toggleBtn = document.createElement("button");
+        toggleBtn.className = p.status === "ACTIVE" ? "crimson" : "emerald";
+        toggleBtn.textContent = p.status === "ACTIVE" ? "Deactivate" : "Activate";
+        toggleBtn.onclick = async () => {
+          await updateDoc(doc(db, "subscription_plans", p.id), {
+            status: nextStatus,
+            visible: nextStatus === "ACTIVE",
+            updatedAt: serverTimestamp()
+          });
+          await addDoc(collection(db, "subscription_events"), {
+            actorUid: auth.currentUser.uid,
+            actorEmail: auth.currentUser.email,
+            actorRole: "SUPER_ADMIN",
+            businessId: "",
+            entityType: "subscription_plans",
+            entityId: p.id,
+            action: `PLAN_STATUS_${nextStatus}`,
+            previousValue: JSON.stringify({ status: p.status }),
+            newValue: JSON.stringify({ status: nextStatus }),
+            createdAt: serverTimestamp()
+          });
+        };
+        cell.appendChild(toggleBtn);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderQuotasTable() {
+      const tbody = document.getElementById("quotasTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      businessesCache.forEach(b => {
+        const sub = subscriptionsCache.find(s => s.id === b.id);
+        const quota = quotasCache.find(q => q.id === `${b.id}_current`);
+        const st = storageCache.find(s => s.id === b.id);
+        const ov = customOverridesCache.find(o => o.id === b.id);
+        const allocR = ov?.overrideReceiptsPerCycle ?? quota?.receiptsAllocated ?? "-";
+        const usedR = quota?.receiptsUsed ?? 0;
+        const allocO = ov?.overrideMaxOcr ?? quota?.ocrAllocated ?? "-";
+        const usedO = quota?.ocrUsed ?? 0;
+        const usedBytes = Number(st?.usedBytes ?? b.storageUsedBytes ?? 0);
+        const allocBytes = Number(ov?.overrideStorageLimitBytes ?? st?.allocatedBytes ?? b.storageLimitBytes ?? 524288000);
+        const usedMb = (usedBytes / (1024 * 1024)).toFixed(1);
+        const allocMb = allocBytes < 0 ? "Unlim" : Math.round(allocBytes / (1024 * 1024));
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(b.tradingName || b.registeredName || b.id)}</strong>${ov ? ' <span class="pill active">CUSTOM</span>' : ""}</td>
+          <td>${escapeHtml(sub?.planCode || b.subscriptionPlanCode)}<br><small>${escapeHtml(sub?.status || b.subscriptionStatus)}</small></td>
+          <td>${usedR} / ${allocR}</td>
+          <td>${usedO} / ${allocO}</td>
+          <td>${usedMb} MB / ${allocMb} MB</td>
+          <td class="row"></td>
+        `;
+        const cell = tr.querySelector("td:last-child");
+        const ovBtn = document.createElement("button");
+        ovBtn.className = "outline";
+        ovBtn.textContent = "Custom Quotas";
+        ovBtn.onclick = () => {
+          document.getElementById("ovBizId").value = b.id;
+          document.getElementById("ovBizName").textContent = `${b.tradingName || b.registeredName} (${b.ownerEmail})`;
+          document.getElementById("ovMaxReceipts").value = ov?.overrideReceiptsPerCycle ?? "";
+          document.getElementById("ovBonusReceipts").value = 0;
+          document.getElementById("ovMaxOcr").value = ov?.overrideMaxOcr ?? "";
+          document.getElementById("ovStorageMb").value = ov?.overrideStorageLimitBytes != null ? Math.round(ov.overrideStorageLimitBytes / (1024 * 1024)) : "";
+          document.getElementById("ovBonusStorageMb").value = 0;
+          document.getElementById("ovMaxStaff").value = ov?.overrideMaxStaff ?? "";
+          document.getElementById("ovReason").value = ov?.overrideNotes || "";
+          overrideModal.classList.remove("hidden");
+        };
+        cell.appendChild(ovBtn);
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("createPlanBtn").onclick = () => openPlanModal(null);
+
+    document.getElementById("seedLaunchPlansBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      const batch = writeBatch(db);
+      batch.set(doc(db, "subscription_plans", "plan_monthly_1500"), {
+        planId: "plan_monthly_1500",
+        planCode: "MONTHLY",
+        name: "Monthly",
+        description: "Standard monthly 1803Receipts subscription.",
+        priceMinor: 150000,
+        currency: "NGN",
+        billingFrequency: "MONTHLY",
+        intervalDays: 30,
+        trialDays: 0,
+        status: "ACTIVE",
+        visible: true,
+        sortOrder: 1,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "plan_entitlements", "plan_monthly_1500"), {
+        planId: "plan_monthly_1500",
+        maxReceiptsPerCycle: 300,
+        maxOcrPerCycle: 300,
+        storageLimitBytes: 500 * 1024 * 1024,
+        maxStaffAccounts: 5,
+        maxCustomers: -1,
+        rolloverEnabled: false,
+        overageReceiptPriceMinor: 0,
+        warningThresholds: [50, 75, 90, 100],
+        allowedTemplates: ["STANDARD", "PREMIUM_CORPORATE", "COMPACT"],
+        analyticsEnabled: true,
+        reportsExportEnabled: true,
+        qrVerificationEnabled: true,
+        whatsappSharingEnabled: true,
+        emailSharingEnabled: true,
+        prioritySupport: false,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "subscription_plans", "plan_annual_18000"), {
+        planId: "plan_annual_18000",
+        planCode: "ANNUAL",
+        name: "Annual",
+        description: "Full-year 1803Receipts subscription (₦1,500/month × 12).",
+        priceMinor: 1800000,
+        currency: "NGN",
+        billingFrequency: "ANNUAL",
+        intervalDays: 365,
+        trialDays: 0,
+        status: "ACTIVE",
+        visible: true,
+        sortOrder: 2,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "plan_entitlements", "plan_annual_18000"), {
+        planId: "plan_annual_18000",
+        maxReceiptsPerCycle: 3600,
+        maxOcrPerCycle: 3600,
+        storageLimitBytes: 2048 * 1024 * 1024,
+        maxStaffAccounts: 15,
+        maxCustomers: -1,
+        rolloverEnabled: false,
+        overageReceiptPriceMinor: 0,
+        warningThresholds: [50, 75, 90, 100],
+        allowedTemplates: ["STANDARD", "PREMIUM_CORPORATE", "COMPACT"],
+        analyticsEnabled: true,
+        reportsExportEnabled: true,
+        qrVerificationEnabled: true,
+        whatsappSharingEnabled: true,
+        emailSharingEnabled: true,
+        prioritySupport: true,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      await batch.commit();
+      statusMsg.textContent = "Launch plans seeded (Monthly ₦1,500 & Annual ₦18,000).";
+    };
+
+    document.getElementById("savePlanModalBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      const code = document.getElementById("pmCode").value.trim().toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+      const name = document.getElementById("pmName").value.trim();
+      if (!code || !name) {
+        statusMsg.textContent = "Plan name and unique plan code are required.";
+        return;
+      }
+      const planId = document.getElementById("pmPlanId").value.trim() || `plan_${code.toLowerCase()}`;
+      const priceNgn = Number(document.getElementById("pmPriceNgn").value || 0);
+      const priceMinor = Math.round(priceNgn * 100);
+      const storageMb = parseInt(document.getElementById("pmStorageMb").value, 10);
+      const storageLimitBytes = storageMb < 0 ? -1 : storageMb * 1024 * 1024;
+      const now = Date.now();
+      const prevPlan = plansCache.find(p => p.id === planId) || null;
+      const parsedTemplates = (document.getElementById("pmTemplates").value || "STANDARD,PREMIUM_CORPORATE,COMPACT")
+        .split(",").map(s => s.trim().toUpperCase()).filter(Boolean);
+      const parsedThresholds = (document.getElementById("pmWarnThresholds").value || "50,75,90,100")
+        .split(",").map(s => parseInt(s.trim(), 10)).filter(n => Number.isFinite(n) && n > 0 && n <= 100);
+      const batch = writeBatch(db);
+      batch.set(doc(db, "subscription_plans", planId), {
+        planId,
+        planCode: code,
+        name,
+        description: document.getElementById("pmDesc").value.trim(),
+        priceMinor,
+        currency: document.getElementById("pmCurrency").value.trim() || "NGN",
+        billingFrequency: document.getElementById("pmFreq").value,
+        intervalDays: parseInt(document.getElementById("pmIntervalDays").value, 10) || 30,
+        trialDays: parseInt(document.getElementById("pmTrialDays").value, 10) || 0,
+        status: document.getElementById("pmStatus").value,
+        visible: document.getElementById("pmVisible").value === "true",
+        sortOrder: parseInt(document.getElementById("pmSortOrder").value, 10) || 10,
+        createdAt: prevPlan?.createdAt || serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "plan_entitlements", planId), {
+        planId,
+        maxReceiptsPerCycle: parseInt(document.getElementById("pmMaxReceipts").value, 10),
+        maxOcrPerCycle: parseInt(document.getElementById("pmMaxOcr").value, 10),
+        storageLimitBytes,
+        maxStaffAccounts: parseInt(document.getElementById("pmMaxStaff").value, 10),
+        maxCustomers: parseInt(document.getElementById("pmMaxCustomers").value, 10),
+        rolloverEnabled: document.getElementById("pmRollover").value === "true",
+        overageReceiptPriceMinor: Math.round(Number(document.getElementById("pmOverageNgn").value || 0) * 100),
+        warningThresholds: parsedThresholds.length ? parsedThresholds : [50, 75, 90, 100],
+        allowedTemplates: parsedTemplates.length ? parsedTemplates : ["STANDARD", "PREMIUM_CORPORATE", "COMPACT"],
+        analyticsEnabled: document.getElementById("pmAnalytics").value === "true",
+        reportsExportEnabled: document.getElementById("pmAnalytics").value === "true",
+        qrVerificationEnabled: document.getElementById("pmQrVerify").value === "true",
+        whatsappSharingEnabled: document.getElementById("pmWhatsapp").value === "true",
+        emailSharingEnabled: document.getElementById("pmEmailShare").value === "true",
+        prioritySupport: document.getElementById("pmPrioritySupport").value === "true",
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "subscription_events", `evt_plan_${now}`), {
+        actorUid: auth.currentUser.uid,
+        actorEmail: auth.currentUser.email,
+        actorRole: "SUPER_ADMIN",
+        businessId: "",
+        entityType: "subscription_plans",
+        entityId: planId,
+        action: prevPlan ? "PLAN_UPDATED" : "PLAN_CREATED",
+        previousValue: prevPlan ? JSON.stringify({ name: prevPlan.name, priceMinor: prevPlan.priceMinor }) : "{}",
+        newValue: JSON.stringify({ name, priceMinor, code }),
+        createdAt: serverTimestamp()
+      });
+      await batch.commit();
+      planModal.classList.add("hidden");
+      statusMsg.textContent = `Plan '${name}' (${code}) saved live without rebuilding the Android app.`;
+    };
+
+    document.getElementById("saveOverrideBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      const bizId = document.getElementById("ovBizId").value;
+      if (!bizId) return;
+      const now = Date.now();
+      const numOrNull = (id) => {
+        const v = document.getElementById(id).value.trim();
+        return v === "" ? null : parseInt(v, 10);
+      };
+      const storageMb = numOrNull("ovStorageMb");
+      const bonusStorageMb = parseInt(document.getElementById("ovBonusStorageMb").value, 10) || 0;
+      const storageLimitBytes = storageMb === null ? null : (storageMb < 0 ? -1 : (storageMb + bonusStorageMb) * 1024 * 1024);
+      const baseMaxReceipts = numOrNull("ovMaxReceipts");
+      const bonusReceipts = parseInt(document.getElementById("ovBonusReceipts").value, 10) || 0;
+      const effReceipts = baseMaxReceipts === null ? (bonusReceipts > 0 ? bonusReceipts : null) : (baseMaxReceipts < 0 ? -1 : baseMaxReceipts + bonusReceipts);
+      const reason = document.getElementById("ovReason").value.trim() || "Super Admin custom allowance adjustment";
+      const batch = writeBatch(db);
+      batch.set(doc(db, "custom_business_entitlements", bizId), {
+        businessId: bizId,
+        overrideReceiptsPerCycle: effReceipts,
+        overrideMaxOcr: numOrNull("ovMaxOcr"),
+        overrideStorageLimitBytes: storageLimitBytes,
+        overrideMaxStaff: numOrNull("ovMaxStaff"),
+        overrideNotes: reason,
+        updatedByUid: auth.currentUser.uid,
+        updatedByEmail: auth.currentUser.email,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      batch.set(doc(db, "subscription_events", `evt_ov_${now}`), {
+        actorUid: auth.currentUser.uid,
+        actorEmail: auth.currentUser.email,
+        actorRole: "SUPER_ADMIN",
+        businessId: bizId,
+        entityType: "custom_business_entitlements",
+        entityId: bizId,
+        action: "CUSTOM_ENTITLEMENT_APPLIED",
+        previousValue: "{}",
+        newValue: JSON.stringify({ maxReceipts: effReceipts, storageMb, bonusStorageMb }),
+        createdAt: serverTimestamp()
+      });
+      await batch.commit();
+      overrideModal.classList.add("hidden");
+      statusMsg.textContent = `Custom allowances applied to workspace ${bizId}.`;
+    };
+
+    document.getElementById("runExpirySweepBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      const graceDays = parseInt(document.getElementById("setGraceDays").value, 10) || 7;
+      const now = Date.now();
+      let changed = 0;
+      const batch = writeBatch(db);
+      businessesCache.forEach(b => {
+        const exp = Number(b.subscriptionExpiryMillis || 0);
+        if (exp > 0 && exp < now && b.subscriptionStatus === "ACTIVE") {
+          const graceEnd = exp + graceDays * 86400000;
+          const nextStatus = graceEnd > now ? "GRACE_PERIOD" : "EXPIRED";
+          batch.update(doc(db, "businesses", b.id), { subscriptionStatus: nextStatus, updatedAt: serverTimestamp() });
+          batch.set(doc(db, "business_subscriptions", b.id), {
+            status: nextStatus,
+            gracePeriodEndMillis: graceEnd,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+          changed += 1;
+        }
+      });
+      if (changed > 0) await batch.commit();
+      statusMsg.textContent = `Expiry & grace period sweep finished (${changed} workspace(s) transitioned).`;
+    };
+
+    document.getElementById("exportSubsCsvBtn").onclick = () => {
+      const headers = ["Business ID", "Plan Code", "Status", "Cycle Start", "Cycle End", "Agreed Price Minor", "AutoRenew"];
+      const rows = subscriptionsCache.map(s => [
+        s.businessId,
+        s.planCode,
+        s.status,
+        s.cycleStartMillis ? new Date(s.cycleStartMillis).toISOString() : "",
+        s.cycleEndMillis ? new Date(s.cycleEndMillis).toISOString() : "",
+        s.agreedPriceMinor || 0,
+        Boolean(s.autoRenew)
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "1803Receipts_Subscriptions.csv";
+      a.click();
+    };
+
+    function normalizeAndValidateRelayUrl(rawUrl) {
+      let cleaned = String(rawUrl || "").trim().replace(/^["'`]+|["'`]+$/g, "").replace(/[\r\n]/g, "").trim();
+      if (!cleaned) return "";
+      if (!/^https?:\/\//i.test(cleaned)) cleaned = `https://${cleaned}`;
+      if (cleaned.toLowerCase().includes("script.google.com")) {
+        cleaned = cleaned.replace(/\/macros\/u\/\d+\/s\//i, "/macros/s/");
+      }
+      if (/^http:\/\//i.test(cleaned) && !/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(cleaned)) {
+        cleaned = `https://${cleaned.slice(7)}`;
+      }
+      const parsed = new URL(cleaned);
+      const host = parsed.hostname.toLowerCase();
+      const path = parsed.pathname.toLowerCase();
+      if (host === "script.google.com") {
+        if (path.endsWith("/edit") || path.includes("/home/projects") || path.startsWith("/d/")) {
+          throw new Error("You pasted an Apps Script editor link. Open Deploy → New deployment → Web app → Who has access: Anyone, and copy the /exec URL.");
+        }
+        if (path.endsWith("/dev")) {
+          throw new Error("Apps Script /dev URLs reject external POST requests. Copy the deployed /exec URL instead.");
+        }
+        if (!path.includes("/macros/s/") || !path.endsWith("/exec")) {
+          throw new Error("Apps Script URL must match https://script.google.com/macros/s/<ID>/exec.");
+        }
+      }
+      if ((host.endsWith(".web.app") || host.endsWith(".firebaseapp.com")) && (path === "/" || path === "/index.html" || !path)) {
+        throw new Error("Firebase Hosting web portal URLs reject POST (HTTP 405). Use your Cloud Function or Apps Script /exec URL.");
+      }
+      return parsed.toString();
+    }
+
+    document.getElementById("saveSettingsBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      try {
+        const rawWebhook = document.getElementById("setEmailWebhook").value;
+        const normalizedWebhook = normalizeAndValidateRelayUrl(rawWebhook);
+        document.getElementById("setEmailWebhook").value = normalizedWebhook;
+        await setDoc(doc(db, "platform_settings", "global"), {
+          settingKey: "global",
+          monthlyPriceNgn: Number(document.getElementById("setMonthly").value) || 1500,
+          annualPriceNgn: Number(document.getElementById("setAnnual").value) || 18000,
+          storageLimitMb: parseInt(document.getElementById("setStorage").value, 10) || 500,
+          gracePeriodDays: parseInt(document.getElementById("setGraceDays").value, 10) || 7,
+          prorationEnabled: document.getElementById("setProration").value === "true",
+          defaultRolloverEnabled: document.getElementById("setRollover").value === "true",
+          bankAccountName: document.getElementById("setBankAccName").value.trim() || "1803 CONSULT",
+          bankAccountNumber: document.getElementById("setBankAccNum").value.trim() || "3001823009",
+          bankName: document.getElementById("setBankName").value.trim() || "KUDA",
+          notificationEmail: document.getElementById("setNotifEmail").value.trim() || SUPER_ADMIN_EMAIL,
+          emailNotificationWebhookUrl: normalizedWebhook,
+          supportEmail: document.getElementById("setSupportEmail").value.trim() || SUPER_ADMIN_EMAIL,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        statusMsg.textContent = "Global platform settings saved!";
+      } catch (err) {
+        statusMsg.textContent = `Failed to save settings: ${err.message || err}`;
+      }
+    };
+
+    document.getElementById("testWebhookBtn").onclick = async () => {
+      const rawUrl = document.getElementById("setEmailWebhook").value;
+      const toEmail = document.getElementById("setNotifEmail").value.trim() || SUPER_ADMIN_EMAIL;
+      if (!rawUrl.trim()) {
+        statusMsg.textContent = "Enter an Email Relay Webhook URL (/exec or Cloud Function) first.";
+        return;
+      }
+      let url;
+      try {
+        url = normalizeAndValidateRelayUrl(rawUrl);
+        document.getElementById("setEmailWebhook").value = url;
+      } catch (valErr) {
+        statusMsg.textContent = `Email relay test failed: ${valErr.message || valErr}`;
+        return;
+      }
+      statusMsg.textContent = `Sending test notification to ${toEmail}...`;
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            paymentId: `web_test_${Date.now()}`,
+            toEmail,
+            subject: "1803Receipts Web Portal Email Relay Test",
+            body: `Test notification confirming email alerts to ${toEmail} are active.`,
+            businessName: "1803 CONSULT Portal Test",
+            ownerName: "Super Admin",
+            ownerEmail: toEmail,
+            planCode: "MONTHLY",
+            amountNgn: Number(document.getElementById("setMonthly").value) || 1500,
+            txRef: `WEB_TEST_${Date.now()}`
+          })
+        });
+        const text = (await res.text()).trim();
+        let parsed = null;
+        if (text.startsWith("{")) {
+          try { parsed = JSON.parse(text); } catch (_) {}
+        }
+        if (!res.ok) {
+          const detail = parsed?.error || parsed?.message || text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+          throw new Error(`HTTP ${res.status}${detail ? ` — ${detail}` : ""}`);
+        }
+        if (/<!doctype html|<html/i.test(text) && /signin|servicelogin|accounts\.google\.com/i.test(text)) {
+          throw new Error("Apps Script redirected to Google Sign-In. Set 'Who has access: Anyone' and redeploy.");
+        }
+        if (parsed && (parsed.ok === false || parsed.error)) {
+          throw new Error(parsed.error || "Email relay rejected the request.");
+        }
+        statusMsg.textContent = `Test email relay succeeded for ${toEmail}!`;
+      } catch (err) {
+        statusMsg.textContent = `Email relay test failed: ${err.message || err}`;
+      }
+    };
+
+    document.getElementById("publishAnnBtn").onclick = async () => {
+      if (!db || !auth?.currentUser) return;
+      const title = document.getElementById("annTitle").value.trim();
+      const message = document.getElementById("annMsg").value.trim();
+      const category = document.getElementById("annCat").value;
+      if (!title || !message) {
+        statusMsg.textContent = "Enter both an announcement title and message.";
+        return;
+      }
+      try {
+        await addDoc(collection(db, "platform_announcements"), {
+          title,
+          message,
+          category,
+          status: "PUBLISHED",
+          targetAudience: "ALL",
+          createdByUid: auth.currentUser.uid,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        document.getElementById("annTitle").value = "";
+        document.getElementById("annMsg").value = "";
+        statusMsg.textContent = "Announcement published to all businesses.";
+      } catch (err) {
+        statusMsg.textContent = `Announcement failed: ${err.message || err}`;
+      }
+    };
+
+    document.getElementById("exportBizCsvBtn").onclick = () => {
+      const headers = ["ID", "Business", "Owner", "Email", "Subscription", "Account", "Receipts"];
+      const rows = businessesCache.map(b => [b.id, b.tradingName || b.registeredName, b.ownerName, b.ownerEmail, b.subscriptionStatus, b.accountStatus, b.receiptsCount || 0]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "1803CONSULT_Businesses.csv";
+      a.click();
+    };
+
+    function toWatDateKey(epochMillis) {
+      return new Date(epochMillis + WAT_OFFSET_MS).toISOString().slice(0, 10);
+    }
+
+    function getPaymentMillis(payment) {
+      const verifiedMs = Number(payment?.verifiedAtMillis || 0);
+      if (verifiedMs > 0 && Number.isFinite(verifiedMs)) return verifiedMs;
+      const ts = payment?.createdAt || payment?.updatedAt;
+      if (ts && typeof ts.toMillis === "function") return ts.toMillis();
+      if (ts && typeof ts.toDate === "function") return ts.toDate().getTime();
+      if (ts && typeof ts.seconds === "number") return ts.seconds * 1000;
+      const numeric = Number(ts);
+      return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+    }
+
+    function buildLast30DaysRevenueSeries(payments, nowMs = Date.now()) {
+      const todayKey = toWatDateKey(nowMs);
+      const [y, m, d] = todayKey.split("-").map(Number);
+      const todayUtcMidnight = Date.UTC(y, m - 1, d);
+      const dayBuckets = new Map();
+      const series = [];
+
+      for (let offset = 29; offset >= 0; offset--) {
+        const dayMs = todayUtcMidnight - offset * 86400000;
+        const dateKey = new Date(dayMs).toISOString().slice(0, 10);
+        const entry = {
+          dateKey,
+          dateObj: new Date(dayMs),
+          label: new Date(dayMs).toLocaleDateString("en-NG", { month: "short", day: "numeric", timeZone: "UTC" }),
+          revenueNgn: 0,
+          verifiedCount: 0,
+          monthlyCount: 0,
+          annualCount: 0,
+          pendingNgn: 0,
+          pendingCount: 0,
+          movingAvg7d: 0
+        };
+        dayBuckets.set(dateKey, entry);
+        series.push(entry);
+      }
+
+      (payments || []).forEach(p => {
+        const ms = getPaymentMillis(p);
+        if (!ms) return;
+        const key = toWatDateKey(ms);
+        const bucket = dayBuckets.get(key);
+        if (!bucket) return;
+        const amount = Number(p.amountNgn) || 0;
+        if (p.paymentStatus === "VERIFIED") {
+          bucket.revenueNgn += amount;
+          bucket.verifiedCount += 1;
+          if (p.planCode === "ANNUAL") bucket.annualCount += 1;
+          else bucket.monthlyCount += 1;
+        } else if (p.paymentStatus === "PENDING") {
+          bucket.pendingNgn += amount;
+          bucket.pendingCount += 1;
+        }
+      });
+
+      for (let i = 0; i < series.length; i++) {
+        const start = Math.max(0, i - 6);
+        let sum = 0;
+        for (let j = start; j <= i; j++) sum += series[j].revenueNgn;
+        series[i].movingAvg7d = sum / (i - start + 1);
+      }
+      return series;
+    }
+
+    function formatNairaCompact(val) {
+      const num = Number(val) || 0;
+      if (num >= 1000000) return `₦${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+      if (num >= 1000) return `₦${(num / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+      return `₦${num.toLocaleString("en-NG")}`;
+    }
+
+    function renderRevenueTrendChart(payments) {
+      const wrap = document.getElementById("revenueChartWrap");
+      const emptyEl = document.getElementById("revenueChartEmpty");
+      let tooltip = document.getElementById("revenueTooltip");
+      if (!wrap) return;
+
+      const series = buildLast30DaysRevenueSeries(payments);
+      const total30d = series.reduce((acc, s) => acc + s.revenueNgn, 0);
+      const count30d = series.reduce((acc, s) => acc + s.verifiedCount, 0);
+      const peakDay = series.reduce((best, s) => (s.revenueNgn > best.revenueNgn ? s : best), series[0]);
+      const avg30d = total30d / 30;
+
+      document.getElementById("chartTotal30d").textContent = `₦${total30d.toLocaleString("en-NG")}`;
+      document.getElementById("chartAvg30d").textContent = `₦${Math.round(avg30d).toLocaleString("en-NG")}`;
+      document.getElementById("chartPeak30d").textContent = peakDay && peakDay.revenueNgn > 0
+        ? `₦${peakDay.revenueNgn.toLocaleString("en-NG")} (${peakDay.label})`
+        : "₦0";
+      document.getElementById("chartCount30d").textContent = String(count30d);
+
+      if (typeof window.d3 === "undefined") {
+        emptyEl.textContent = "D3.js chart library failed to load. Check network access and refresh.";
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+
+      if (total30d === 0) {
+        emptyEl.textContent = "No verified transfers recorded in the last 30 days yet. Clicking \"Verified\" on a transfer updates this chart in real time.";
+        emptyEl.classList.remove("hidden");
+      } else {
+        emptyEl.classList.add("hidden");
+      }
+
+      wrap.querySelectorAll("svg").forEach(el => el.remove());
+      if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.id = "revenueTooltip";
+        tooltip.className = "chart-tooltip";
+        wrap.appendChild(tooltip);
+      }
+
+      const containerWidth = Math.max(wrap.clientWidth || 720, 320);
+      const height = 300;
+      const margin = { top: 18, right: 20, bottom: 36, left: 64 };
+      const innerWidth = containerWidth - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      const svg = d3.select(wrap)
+        .insert("svg", "#revenueTooltip")
+        .attr("viewBox", `0 0 ${containerWidth} ${height}`)
+        .attr("width", containerWidth)
+        .attr("height", height)
+        .attr("role", "img")
+        .attr("aria-label", "Daily verified subscription revenue over the last 30 days");
+
+      const cssVars = typeof getComputedStyle === "function" ? getComputedStyle(document.documentElement) : null;
+      const chartBarActive = cssVars?.getPropertyValue("--chart-bar-active").trim() || "#047857";
+      const chartBarEmpty = cssVars?.getPropertyValue("--chart-bar-empty").trim() || "#E2E8F0";
+      const chartLineColor = cssVars?.getPropertyValue("--chart-line").trim() || "#0B203B";
+      const chartSurfaceColor = cssVars?.getPropertyValue("--surface").trim() || "#FFFFFF";
+
+      const defs = svg.append("defs");
+      const areaGrad = defs.append("linearGradient")
+        .attr("id", "revAreaGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "0%")
+        .attr("y2", "100%");
+      areaGrad.append("stop").attr("offset", "0%").attr("stop-color", chartBarActive).attr("stop-opacity", 0.24);
+      areaGrad.append("stop").attr("offset", "100%").attr("stop-color", chartBarActive).attr("stop-opacity", 0.02);
+
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const xBand = d3.scaleBand()
+        .domain(series.map(d => d.dateKey))
+        .range([0, innerWidth])
+        .padding(0.28);
+
+      const maxVal = d3.max(series, d => Math.max(d.revenueNgn, d.movingAvg7d)) || 0;
+      const yMax = maxVal > 0 ? maxVal * 1.15 : 5000;
+      const yScale = d3.scaleLinear()
+        .domain([0, yMax])
+        .nice()
+        .range([innerHeight, 0]);
+
+      g.append("g")
+        .attr("class", "gridline")
+        .call(d3.axisLeft(yScale).ticks(5).tickSize(-innerWidth).tickFormat(""));
+
+      const xTickStep = containerWidth < 560 ? 6 : 4;
+      const xTickValues = series.filter((_, idx) => idx % xTickStep === 0 || idx === series.length - 1).map(d => d.dateKey);
+      const labelByKey = new Map(series.map(d => [d.dateKey, d.label]));
+
+      g.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${innerHeight})`)
+        .call(d3.axisBottom(xBand).tickValues(xTickValues).tickFormat(k => labelByKey.get(k) || k));
+
+      g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(yScale).ticks(5).tickFormat(formatNairaCompact));
+
+      const xCenter = d => (xBand(d.dateKey) ?? 0) + xBand.bandwidth() / 2;
+
+      const areaGen = d3.area()
+        .x(xCenter)
+        .y0(innerHeight)
+        .y1(d => yScale(d.revenueNgn))
+        .curve(d3.curveMonotoneX);
+
+      g.append("path")
+        .datum(series)
+        .attr("fill", "url(#revAreaGradient)")
+        .attr("d", areaGen);
+
+      const bars = g.selectAll(".rev-bar")
+        .data(series)
+        .enter()
+        .append("rect")
+        .attr("class", "rev-bar")
+        .attr("x", d => xBand(d.dateKey))
+        .attr("y", d => yScale(d.revenueNgn))
+        .attr("width", xBand.bandwidth())
+        .attr("height", d => Math.max(0, innerHeight - yScale(d.revenueNgn)))
+        .attr("rx", 4)
+        .attr("fill", d => d.revenueNgn > 0 ? chartBarActive : chartBarEmpty)
+        .attr("fill-opacity", d => d.revenueNgn > 0 ? 0.78 : 0.45);
+
+      const lineGen = d3.line()
+        .x(xCenter)
+        .y(d => yScale(d.revenueNgn))
+        .curve(d3.curveMonotoneX);
+
+      g.append("path")
+        .datum(series)
+        .attr("fill", "none")
+        .attr("stroke", chartLineColor)
+        .attr("stroke-width", 2)
+        .attr("d", lineGen);
+
+      const maGen = d3.line()
+        .x(xCenter)
+        .y(d => yScale(d.movingAvg7d))
+        .curve(d3.curveMonotoneX);
+
+      g.append("path")
+        .datum(series)
+        .attr("fill", "none")
+        .attr("stroke", "#C89B3C")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "5 4")
+        .attr("d", maGen);
+
+      const dots = g.selectAll(".rev-dot")
+        .data(series.filter(d => d.revenueNgn > 0))
+        .enter()
+        .append("circle")
+        .attr("class", "rev-dot")
+        .attr("cx", xCenter)
+        .attr("cy", d => yScale(d.revenueNgn))
+        .attr("r", 3.5)
+        .attr("fill", chartLineColor)
+        .attr("stroke", chartSurfaceColor)
+        .attr("stroke-width", 1.5);
+
+      const hoverGuide = g.append("line")
+        .attr("y1", 0)
+        .attr("y2", innerHeight)
+        .attr("stroke", chartLineColor)
+        .attr("stroke-opacity", 0.3)
+        .attr("stroke-dasharray", "3 3")
+        .style("opacity", 0);
+
+      const showTooltipFor = (d) => {
+        const cx = xCenter(d);
+        hoverGuide.attr("x1", cx).attr("x2", cx).style("opacity", 1);
+        bars.attr("fill-opacity", b => b.dateKey === d.dateKey ? 1 : (b.revenueNgn > 0 ? 0.55 : 0.35));
+        dots.attr("r", pt => pt.dateKey === d.dateKey ? 5.5 : 3.5);
+
+        tooltip.replaceChildren();
+        const dateEl = document.createElement("div");
+        dateEl.className = "tt-date";
+        dateEl.textContent = `${d.label} (${d.dateKey})`;
+        tooltip.appendChild(dateEl);
+
+        const lines = [
+          `Verified Revenue: ₦${d.revenueNgn.toLocaleString("en-NG")}`,
+          `Verified Txns: ${d.verifiedCount} (Monthly: ${d.monthlyCount}, Annual: ${d.annualCount})`,
+          `7-Day Avg: ₦${Math.round(d.movingAvg7d).toLocaleString("en-NG")}`,
+          `Pending Queue: ${d.pendingCount} (₦${d.pendingNgn.toLocaleString("en-NG")})`
+        ];
+        lines.forEach(text => {
+          const row = document.createElement("div");
+          row.textContent = text;
+          tooltip.appendChild(row);
+        });
+
+        const rawLeft = margin.left + cx + 12;
+        const maxLeft = Math.max(8, containerWidth - 210);
+        tooltip.style.left = `${Math.min(rawLeft, maxLeft)}px`;
+        tooltip.style.top = `${Math.max(8, margin.top + Math.min(yScale(d.revenueNgn), innerHeight - 90))}px`;
+        tooltip.style.opacity = "1";
+      };
+
+      const hideTooltip = () => {
+        hoverGuide.style("opacity", 0);
+        bars.attr("fill-opacity", b => b.revenueNgn > 0 ? 0.78 : 0.45);
+        dots.attr("r", 3.5);
+        tooltip.style.opacity = "0";
+      };
+
+      g.selectAll(".rev-hitbox")
+        .data(series)
+        .enter()
+        .append("rect")
+        .attr("class", "rev-hitbox")
+        .attr("x", d => xBand(d.dateKey) - xBand.step() * xBand.paddingInner() / 2)
+        .attr("y", 0)
+        .attr("width", xBand.step())
+        .attr("height", innerHeight)
+        .attr("fill", "transparent")
+        .style("cursor", "crosshair")
+        .on("mouseenter", (_, d) => showTooltipFor(d))
+        .on("mousemove", (_, d) => showTooltipFor(d))
+        .on("mouseleave", hideTooltip);
+    }
+
+    if (typeof ResizeObserver !== "undefined") {
+      const chartWrapEl = document.getElementById("revenueChartWrap");
+      if (chartWrapEl) {
+        let resizeTimer = null;
+        const ro = new ResizeObserver(() => {
+          if (portalBody.classList.contains("hidden")) return;
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => renderRevenueTrendChart(paymentsCache), 120);
+        });
+        ro.observe(chartWrapEl);
+      }
+    }
+
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    function applyPortalTheme(mode) {
+      const dark = mode === "dark";
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      localStorage.setItem("r1803_web_theme", dark ? "dark" : "light");
+      if (themeToggleBtn) themeToggleBtn.textContent = dark ? "Light Mode" : "Dark Mode";
+      if (!portalBody.classList.contains("hidden")) {
+        renderRevenueTrendChart(paymentsCache);
+      }
+    }
+    const savedWebTheme = localStorage.getItem("r1803_web_theme")
+      || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    applyPortalTheme(savedWebTheme);
+    if (themeToggleBtn) {
+      themeToggleBtn.onclick = () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyPortalTheme(next);
+      };
+    }
+
+    if (cfgKeyEl.value && cfgAppEl.value) connectFirebase();
+  </script>
+</body>
+</html>
